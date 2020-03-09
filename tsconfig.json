@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "target": "es5",
+    "baseUrl": ".",
+    "noUnusedLocals": true,
+    "module": "CommonJS",
+    "importHelpers": true,
+    "lib": ["es2015"],
+    "types": ["node"],
+    "declaration": true,
+    "sourceMap": true,
+    "strict": true,
+    "outDir": "lib"
+  },
+  "include": [
+    "src/main/ts",
+    "src/demo/ts",
+    "src/test/ts",
+    "node_modules/@ephox/**/*/api/Main.d.ts"
+  ]
+}
