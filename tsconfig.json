@@ -3,6 +3,7 @@
     "moduleResolution": "node",
     "target": "es5",
     "baseUrl": ".",
+    "rootDir": "src/main/ts",
     "noUnusedLocals": true,
     "module": "CommonJS",
     "importHelpers": true,
