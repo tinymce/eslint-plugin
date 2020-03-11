@@ -21,14 +21,14 @@ This is the base rules for eslint that we can share between projects and then ov
 
 ### 9 rules do not yet have ESLint equivalents
 - import-spacing
+- one-line
+- whitespace
 - no-direct-imports (custom)
 - no-enums-in-export-specifier (custom)
 - no-main-module-imports (custom)
 - no-path-alias-imports (custom)
 - no-reference-import
 - no-unimported-promise (custom)
-- one-line
-- whitespace
 
 ### 2 packages are required for new ESLint rules.
 - `eslint-plugin-prefer-arrow` supports this rule:

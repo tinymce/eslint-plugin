@@ -11,7 +11,7 @@
     "declaration": true,
     "sourceMap": true,
     "strict": true,
-    "outDir": "lib"
+    "outDir": "dist"
   },
   "include": [
     "src/main/ts",
