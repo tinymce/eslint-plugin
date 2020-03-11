@@ -31,8 +31,12 @@
     "dist",
     "readme.md"
   ],
+  "publishConfig": {
+    "registry": "http://nexus:8081/repository/ephox-npm/"
+  },
   "scripts": {
     "build": "tsc",
-    "test": "jest"
+    "test": "jest",
+    "prepublishOnly": "tsc"
   }
 }
