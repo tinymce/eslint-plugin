@@ -23,7 +23,7 @@ This is the base rules for eslint that we can share between projects and then ov
 - import-spacing
 - one-line
 - whitespace
-- no-direct-imports (custom)
+- no-direct-imports (custom) - now imported
 - no-enums-in-export-specifier (custom)
 - no-main-module-imports (custom)
 - no-path-alias-imports (custom)

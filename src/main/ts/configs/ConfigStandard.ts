@@ -10,6 +10,7 @@ export const standard: Linter.Config = {
       "@ephox" // means @ephox/eslint-plugin (see https://eslint.org/docs/user-guide/configuring#naming-convention )
   ],
   "rules": {
+      "@ephox/no-direct-imports": "error",
       "@typescript-eslint/array-type": "off",
       "@typescript-eslint/ban-types": "off",
       "@typescript-eslint/consistent-type-assertions": "off",
