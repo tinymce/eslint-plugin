@@ -16,7 +16,7 @@ export const standard: Linter.Config = {
       "@typescript-eslint/consistent-type-assertions": "off",
       "@typescript-eslint/consistent-type-definitions": "error",
       "@typescript-eslint/explicit-member-accessibility": ["error", { "accessibility": "explicit" }],
-      "@typescript-eslint/indent": ["error", 4, {
+      "@typescript-eslint/indent": ["error", 2, {
           "FunctionDeclaration": { "parameters": "first" },
           "FunctionExpression": { "parameters": "first" }
       }],
