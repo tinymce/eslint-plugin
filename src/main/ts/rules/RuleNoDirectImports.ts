@@ -17,7 +17,6 @@ export const noDirectImports: Rule.RuleModule = {
         if (node.type === 'ImportDeclaration') {
           const source = node.source.value;
           if (typeof source === 'string') {
-            console.log(source);
             if (isInternalLibModule(source) || isInternalSrcModule(source)) {
               context.report({
                 node,
