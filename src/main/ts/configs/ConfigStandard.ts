@@ -15,6 +15,7 @@ export const standard: Linter.Config = {
     "@ephox/no-direct-imports": "error",
     "@ephox/no-main-module-imports": "error",
     "@ephox/no-path-alias-imports": "error",
+    "@ephox/no-unimported-promise": "error",
     "@typescript-eslint/array-type": "off",
     "@typescript-eslint/ban-types": "off",
     "@typescript-eslint/consistent-type-assertions": "off",
