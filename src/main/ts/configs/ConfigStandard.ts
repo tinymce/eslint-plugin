@@ -7,7 +7,9 @@ export const standard: Linter.Config = {
   ],
   "plugins": [
     "@typescript-eslint",
-    "@ephox" // means @ephox/eslint-plugin (see https://eslint.org/docs/user-guide/configuring#naming-convention )
+    "@ephox", // means @ephox/eslint-plugin (see https://eslint.org/docs/user-guide/configuring#naming-convention )
+    "import",
+    "prefer-arrow",
   ],
   "rules": {
     "@ephox/no-direct-imports": "error",

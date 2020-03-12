@@ -1,24 +1,24 @@
 {
   "name": "@ephox/eslint-plugin",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Plugin for ESLint containing Tiny Technologies Inc. standard linting rules",
   "author": "Tiny Technologies Inc.",
   "main": "dist/api/Main.js",
   "repository": "git@github.com:tinymce/eslint-plugin.git",
   "license": "Apache-2.0",
   "dependencies": {
-    "@types/eslint": "^6.1.8"
-  },
-  "devDependencies": {
-    "@types/node": "^13.9.0",
-    "jest": "^25.1.0",
-    "ts-jest": "^25.2.1",
-    "typescript": "^3.8.3",
     "@typescript-eslint/eslint-plugin": "^2.22.0",
     "@typescript-eslint/parser": "^2.22.0",
     "eslint": "^6.8.0",
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-prefer-arrow": "^1.1.7"
+  },
+  "devDependencies": {
+    "@types/eslint": "^6.1.8",
+    "@types/node": "^13.9.0",
+    "jest": "^25.1.0",
+    "ts-jest": "^25.2.1",
+    "typescript": "^3.8.3"
   },
   "peerDependencies": {
     "@typescript-eslint/eslint-plugin": "^2.22.0",
