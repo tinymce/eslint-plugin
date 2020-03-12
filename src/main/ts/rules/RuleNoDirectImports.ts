@@ -1,5 +1,6 @@
 import { Rule } from 'eslint';
 import {isInternalLibModule, isInternalSrcModule } from '../utils/ImportUtils';
+import { extractModuleSpecifier } from '../utils/ExtractUtils';
 
 export const noDirectImports: Rule.RuleModule = {
   meta: {
@@ -8,23 +9,19 @@ export const noDirectImports: Rule.RuleModule = {
       description: 'Disallows deep lib imports directly to a file within a @ephox package.'
     },
     messages: {
-      noDirectImport: 'Direct import to {{ source }} is forbidden.'
+      noDirectImport: 'Direct import to {{ moduleSpecifier }} is forbidden.'
     }
   },
   create: (context) => {
     return {
       ImportDeclaration: (node) => {
-        if (node.type === 'ImportDeclaration') {
-          const source = node.source.value;
-          if (typeof source === 'string') {
-            if (isInternalLibModule(source) || isInternalSrcModule(source)) {
-              context.report({
-                node,
-                messageId: 'noDirectImport',
-                data: { source },
-              });
-            }
-          }
+        const moduleSpecifier = extractModuleSpecifier(node);
+        if (isInternalLibModule(moduleSpecifier) || isInternalSrcModule(moduleSpecifier)) {
+          context.report({
+            node,
+            messageId: 'noDirectImport',
+            data: { moduleSpecifier },
+          });
         }
       }
     }

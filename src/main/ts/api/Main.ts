@@ -1,9 +1,11 @@
+import { Linter, Rule } from 'eslint';
+import { standard } from '../configs/ConfigStandard';
 import { noDirectImports } from '../rules/RuleNoDirectImports';
-import { standard } from "../configs/ConfigStandard";
-import { Rule, Linter } from 'eslint';
+import { noMainModuleImports } from '../rules/RuleNoMainModuleImports';
 
 const rules: Record<string, Rule.RuleModule> = {
-  'no-direct-imports': noDirectImports
+  'no-direct-imports': noDirectImports,
+  'no-main-module-imports': noMainModuleImports
 };
 
 const configs: Record<string, Linter.Config> = {
