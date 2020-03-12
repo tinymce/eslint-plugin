@@ -38,7 +38,6 @@ export const standard: Linter.Config = {
     "@typescript-eslint/unified-signatures": "error",
     "arrow-body-style": "error",
     "arrow-parens": ["error", "as-needed"],
-    "camelcase": "error",
     "comma-dangle": "off",
     "complexity": "off",
     "constructor-super": "error",
