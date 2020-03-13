@@ -13,7 +13,3 @@ export const isInternalPathAlias = (path: string) => {
 export const isMainImport = (path: string) => {
   return path.endsWith('/Main');
 };
-
-export const trimModulePath = (path: string) => {
-  return path.replace(/['"]/g, '');
-};

@@ -9,19 +9,15 @@ const ruleTester = new RuleTester({
 ruleTester.run('no-unimported-promise', noUnimportedPromise, {
   valid: [
     {
-      code: 
-`
-import Promise from 'promise'; 
-
-const a = Promise.resolve(123);
-`
+      code: `
+      import Promise from 'promise'; 
+      const a = Promise.resolve(123);
+      `
     }, {
-      code:
-`
-import Promise from 'promise'; 
-
-const b = new Promise((resolve) => {});
-`
+      code: `
+      import Promise from 'promise'; 
+      const b = new Promise((resolve) => {});
+      `
     }, {
       code: 'const c = SomethingElse.resolve();'
     }, {

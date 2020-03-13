@@ -1,12 +1,12 @@
-import { RuleTester } from "eslint";
-import { noPathAliasImports } from "../../main/ts/rules/RuleNoPathAliasImports";
+import { RuleTester } from 'eslint';
+import { noPathAliasImports } from '../../main/ts/rules/RuleNoPathAliasImports';
 
 const ruleTester = new RuleTester({
-  parser: require.resolve("@typescript-eslint/parser"),
+  parser: require.resolve('@typescript-eslint/parser'),
   parserOptions: { sourceType: 'module' }
 });
 
-ruleTester.run("no-direct-imports", noPathAliasImports, {
+ruleTester.run('no-path-alias-imports', noPathAliasImports, {
   valid: [
     {
       code: 'import { A } from \'ephox/something/something\';',
