@@ -1,5 +1,5 @@
 import { RuleTester } from 'eslint';
-import { noEnumsInExportSpecifier } from '../../main/ts/rules/RuleNoEnumsInExportSpecifier';
+import { noEnumsInExportSpecifier } from '../../main/ts/rules/NoEnumsInExportSpecifier';
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),

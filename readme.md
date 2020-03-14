@@ -19,16 +19,11 @@ This is the base rules for eslint that we can share between projects and then ov
 * eqeqeq:
   - Option "smart" allows for comparing two literal values, evaluating the value of typeof and null comparisons.
 
-### 9 rules do not yet have ESLint equivalents
+### 4 rules do not yet have ESLint equivalents
 - import-spacing
 - one-line
 - whitespace
-- no-direct-imports (custom) - now imported
-- no-enums-in-export-specifier (custom)
-- no-main-module-imports (custom)
-- no-path-alias-imports (custom)
 - no-reference-import
-- no-unimported-promise (custom)
 
 ### 2 packages are required for new ESLint rules.
 - `eslint-plugin-prefer-arrow` supports this rule:

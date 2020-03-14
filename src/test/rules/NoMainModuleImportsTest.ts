@@ -1,5 +1,5 @@
 import { RuleTester } from 'eslint';
-import { noMainModuleImports } from '../../main/ts/rules/RuleNoMainModuleImports';
+import { noMainModuleImports } from '../../main/ts/rules/NoMainModuleImports';
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),

@@ -1,10 +1,10 @@
 import { Linter, Rule } from 'eslint';
-import { standard } from '../configs/ConfigStandard';
-import { noDirectImports } from '../rules/RuleNoDirectImports';
-import { noMainModuleImports } from '../rules/RuleNoMainModuleImports';
-import { noPathAliasImports } from '../rules/RuleNoPathAliasImports';
-import { noUnimportedPromise } from '../rules/RuleNoUnimportedPromise';
-import { noEnumsInExportSpecifier } from '../rules/RuleNoEnumsInExportSpecifier';
+import { standard } from '../configs/Standard';
+import { noDirectImports } from '../rules/NoDirectImports';
+import { noMainModuleImports } from '../rules/NoMainModuleImports';
+import { noPathAliasImports } from '../rules/NoPathAliasImports';
+import { noUnimportedPromise } from '../rules/NoUnimportedPromise';
+import { noEnumsInExportSpecifier } from '../rules/NoEnumsInExportSpecifier';
 
 const rules: Record<string, Rule.RuleModule> = {
   'no-direct-imports': noDirectImports,
