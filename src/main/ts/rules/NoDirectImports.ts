@@ -1,5 +1,5 @@
 import { Rule } from 'eslint';
-import {isInternalLibModule, isInternalSrcModule } from '../utils/ImportUtils';
+import { isInternalLibModule, isInternalSrcModule } from '../utils/ImportUtils';
 import { extractModuleSpecifier } from '../utils/ExtractUtils';
 
 export const noDirectImports: Rule.RuleModule = {
