@@ -1,6 +1,6 @@
 {
-  "name": "@ephox/eslint-plugin",
-  "version": "1.7.0",
+  "name": "@tinymce/eslint-plugin",
+  "version": "1.0.0",
   "description": "Plugin for ESLint containing Tiny Technologies Inc. standard linting rules",
   "author": "Tiny Technologies Inc.",
   "main": "dist/api/Main.js",
@@ -26,9 +26,6 @@
     "dist",
     "readme.md"
   ],
-  "publishConfig": {
-    "registry": "http://nexus:8081/repository/ephox-npm/"
-  },
   "scripts": {
     "build": "tsc",
     "test": "jest",
