@@ -11,14 +11,14 @@ export const noEnumsInExportSpecifier: Rule.RuleModule = {
       noEnumsInExportSpecifier: 'Exports of enums needs to be where it\'s being declared.'
     }
   },
-  create: context => {
+  create: (context) => {
     const enumNames: Record<string, true> = {};
     return {
       TSEnumDeclaration: (n: unknown) => {
         const node = n as TSESTree.TSEnumDeclaration;
         enumNames[node.id.name] = true;
       },
-      ExportSpecifier: node => {
+      ExportSpecifier: (node) => {
         if (node.type === 'ExportSpecifier') {
           if (enumNames[node.local.name]) {
             context.report({ node, messageId: 'noEnumsInExportSpecifier' });

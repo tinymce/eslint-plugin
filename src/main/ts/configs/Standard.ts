@@ -39,7 +39,7 @@ export const base: Linter.Config = {
     '@typescript-eslint/unified-signatures': 'error',
     'array-bracket-spacing': [ 'error', 'always', { objectsInArrays: false, arraysInArrays: false }],
     'arrow-body-style': 'error',
-    'arrow-parens': [ 'error', 'as-needed' ],
+    'arrow-parens': [ 'error', 'always' ],
     'comma-dangle': 'off',
     'complexity': 'off',
     'constructor-super': 'error',

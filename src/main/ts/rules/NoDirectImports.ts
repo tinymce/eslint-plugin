@@ -12,8 +12,8 @@ export const noDirectImports: Rule.RuleModule = {
       noDirectImport: 'Direct import to {{ moduleSpecifier }} is forbidden.'
     }
   },
-  create: context => ({
-    ImportDeclaration: node => {
+  create: (context) => ({
+    ImportDeclaration: (node) => {
       const moduleSpecifier = extractModuleSpecifier(node);
       if (isInternalLibModule(moduleSpecifier) || isInternalSrcModule(moduleSpecifier)) {
         context.report({

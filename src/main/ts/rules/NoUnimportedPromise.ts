@@ -14,17 +14,17 @@ export const noUnimportedPromise: Rule.RuleModule = {
       promiseFillMissing: 'Promise needs a featurefill import since IE 11 doesn\'t have native support.'
     }
   },
-  create: context => {
+  create: (context) => {
     let seenPromiseImport = false;
     return {
-      ImportDeclaration: node => {
+      ImportDeclaration: (node) => {
         if (node.type === 'ImportDeclaration') {
           if (exists(node.specifiers, isPromiseSpecifier)) {
             seenPromiseImport = true;
           }
         }
       },
-      CallExpression: node => {
+      CallExpression: (node) => {
         if (node.type === 'CallExpression') {
           const callee = node.callee;
           if (callee.type === 'MemberExpression') {
@@ -42,7 +42,7 @@ export const noUnimportedPromise: Rule.RuleModule = {
           }
         }
       },
-      NewExpression: node => {
+      NewExpression: (node) => {
         if (node.type === 'NewExpression') {
           const callee = node.callee;
           if (callee.type === 'Identifier') {
