@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.1.0] - 2020-03-16
+
+### Changed
+- `@typescript-eslint/no-unused-vars` enabled as a warning with ability to use leading underscore to ignore
+- `@typescript-eslint/no-empty-interface` turned off as empty interfaces are frequently used as placeholders
+- `@typescript-eslint/prefer-includes` turned off as it causes IE incompatibility
+- `@typescript-eslint/prefer-string-starts-ends-with` turned off as it causes IE incompatibility
+
 ## [1.0.0] - 2020-03-09
 
 ### Added
