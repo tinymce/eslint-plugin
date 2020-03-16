@@ -6,7 +6,7 @@ export const noDirectImports: Rule.RuleModule = {
   meta: {
     type: 'problem',
     docs: {
-      description: 'Disallows deep lib imports directly to a file within a @ephox package.'
+      description: 'Disallows deep lib imports directly to a file within a @ephox, @tiny or @tinymce package.'
     },
     messages: {
       noDirectImport: 'Direct import to {{ moduleSpecifier }} is forbidden.'

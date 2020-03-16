@@ -91,14 +91,14 @@ export const standard: Linter.Config = {
   extends: base.extends,
   plugins: [
     ...(base.plugins as string[]),
-    '@ephox', // means @ephox/eslint-plugin (see https://eslint.org/docs/user-guide/configuring#naming-convention )
+    '@tinymce', // means @tinymce/eslint-plugin (see https://eslint.org/docs/user-guide/configuring#naming-convention )
   ],
   rules: {
     ...base.rules,
-    '@ephox/no-direct-imports': 'error',
-    '@ephox/no-enums-in-export-specifier': 'error',
-    '@ephox/no-main-module-imports': 'error',
-    '@ephox/no-path-alias-imports': 'error',
-    '@ephox/no-unimported-promise': 'error',
+    '@tinymce/no-direct-imports': 'error',
+    '@tinymce/no-enums-in-export-specifier': 'error',
+    '@tinymce/no-main-module-imports': 'error',
+    '@tinymce/no-path-alias-imports': 'error',
+    '@tinymce/no-unimported-promise': 'error',
   }
 };
