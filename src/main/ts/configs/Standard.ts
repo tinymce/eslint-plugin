@@ -27,13 +27,21 @@ export const base: Linter.Config = {
       singleline: { delimiter: 'semi', requireLast: false }
     }],
     '@typescript-eslint/member-ordering': 'error',
+    '@typescript-eslint/no-empty-interface': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-namespace': 'off',
     '@typescript-eslint/no-parameter-properties': 'off',
-    '@typescript-eslint/no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': [ 'warn', {
+      vars: 'all',
+      args: 'after-used',
+      ignoreRestSiblings: true,
+      argsIgnorePattern: '^_'
+    }],
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/prefer-for-of': 'error',
     '@typescript-eslint/prefer-function-type': 'error',
+    '@typescript-eslint/prefer-includes': 'off',
+    '@typescript-eslint/prefer-string-starts-ends-with': 'off',
     '@typescript-eslint/quotes': [ 'error', 'single' ],
     '@typescript-eslint/semi': [ 'error', 'always' ],
     '@typescript-eslint/unified-signatures': 'error',
