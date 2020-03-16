@@ -24,7 +24,8 @@
   },
   "files": [
     "dist/main",
-    "readme.md"
+    "readme.md",
+    "LICENSE.txt"
   ],
   "scripts": {
     "build": "tsc",
