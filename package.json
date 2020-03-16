@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Plugin for ESLint containing Tiny Technologies Inc. standard linting rules",
   "author": "Tiny Technologies Inc.",
-  "main": "dist/api/Main.js",
+  "main": "dist/main/ts/api/Main.js",
   "repository": "git@github.com:tinymce/eslint-plugin.git",
   "license": "Apache-2.0",
   "dependencies": {
@@ -23,11 +23,12 @@
     "typescript": "^3.8.3"
   },
   "files": [
-    "dist",
+    "dist/main",
     "readme.md"
   ],
   "scripts": {
     "build": "tsc",
+    "lint": "eslint src/**/*.ts",
     "test": "jest",
     "prepublishOnly": "tsc"
   }

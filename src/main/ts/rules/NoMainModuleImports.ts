@@ -13,10 +13,10 @@ export const noMainModuleImports: Rule.RuleModule = {
       noMainImport: 'Direct import to Main module is forbidden.'
     }
   },
-  create: (context) => {
+  create: context => {
     if (isPathInMain(context.getFilename())) {
       return {
-        ImportDeclaration: (node) => {
+        ImportDeclaration: node => {
           if (isMainImport(extractModuleSpecifier(node))) {
             context.report({
               node,

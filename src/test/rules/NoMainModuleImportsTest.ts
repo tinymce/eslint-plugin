@@ -27,7 +27,7 @@ ruleTester.run('no-main-module-imports', noMainModuleImports, {
     {
       code: 'import { A } from \'./SomethingNotMain\';',
       filename: 'src/main/ts/api/File.ts'
-    }, 
+    },
     {
       code: 'import { B } from \'../api/SomethingNotMain\';',
       filename: 'src/main/ts/core/File.ts',
@@ -38,7 +38,7 @@ ruleTester.run('no-main-module-imports', noMainModuleImports, {
       code: 'import { A } from \'./Main\';',
       filename: 'src/main/ts/api/File.ts',
       errors: [{ message: 'Direct import to Main module is forbidden.' }]
-    }, 
+    },
     {
       code: 'import { B } from \'../api/Main\';',
       filename: 'src/main/ts/core/File.ts',

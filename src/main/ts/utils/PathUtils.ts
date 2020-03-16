@@ -1,3 +1,1 @@
-export const isPathInMain = (filePath: string) => {
-  return filePath.startsWith('src/main/') || filePath.includes('/src/main/');
-};
+export const isPathInMain = (filePath: string) => filePath.startsWith('src/main/') || filePath.includes('/src/main/');

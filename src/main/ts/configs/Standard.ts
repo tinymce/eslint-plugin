@@ -1,36 +1,30 @@
 import { Linter } from 'eslint';
 
-export const standard: Linter.Config = {
-  'extends': [
+export const base: Linter.Config = {
+  extends: [
     'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/recommended-requiring-type-checking'
   ],
-  'plugins': [
+  plugins: [
     '@typescript-eslint',
-    '@ephox', // means @ephox/eslint-plugin (see https://eslint.org/docs/user-guide/configuring#naming-convention )
     'import',
     'prefer-arrow',
   ],
-  'rules': {
-    '@ephox/no-direct-imports': 'error',
-    '@ephox/no-enums-in-export-specifier': 'error',
-    '@ephox/no-main-module-imports': 'error',
-    '@ephox/no-path-alias-imports': 'error',
-    '@ephox/no-unimported-promise': 'error',
+  rules: {
     '@typescript-eslint/array-type': 'off',
     '@typescript-eslint/ban-types': 'off',
     '@typescript-eslint/consistent-type-assertions': 'off',
     '@typescript-eslint/consistent-type-definitions': 'error',
     '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/explicit-member-accessibility': ['error', { 'accessibility': 'explicit' }],
+    '@typescript-eslint/explicit-member-accessibility': [ 'error', { accessibility: 'explicit' }],
     '@typescript-eslint/indent': [ 'error', 2, {
-      'FunctionDeclaration': { 'parameters': 'first' },
-      'FunctionExpression': { 'parameters': 'first' }
+      FunctionDeclaration: { parameters: 'first' },
+      FunctionExpression: { parameters: 'first' }
     }],
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/member-delimiter-style': [ 'error', {
-      'multiline': { 'delimiter': 'semi', 'requireLast': true },
-      'singleline': { 'delimiter': 'semi', 'requireLast': false }
+      multiline: { delimiter: 'semi', requireLast: true },
+      singleline: { delimiter: 'semi', requireLast: false }
     }],
     '@typescript-eslint/member-ordering': 'error',
     '@typescript-eslint/no-explicit-any': 'off',
@@ -43,9 +37,9 @@ export const standard: Linter.Config = {
     '@typescript-eslint/quotes': [ 'error', 'single' ],
     '@typescript-eslint/semi': [ 'error', 'always' ],
     '@typescript-eslint/unified-signatures': 'error',
-    'array-bracket-spacing': [ 'error', 'always', { "objectsInArrays": false, "arraysInArrays": false }],
+    'array-bracket-spacing': [ 'error', 'always', { objectsInArrays: false, arraysInArrays: false }],
     'arrow-body-style': 'error',
-    'arrow-parens': ['error', 'as-needed'],
+    'arrow-parens': [ 'error', 'as-needed' ],
     'comma-dangle': 'off',
     'complexity': 'off',
     'constructor-super': 'error',
@@ -72,7 +66,7 @@ export const standard: Linter.Config = {
     'no-invalid-this': 'off',
     'no-multiple-empty-lines': 'error',
     'no-new-wrappers': 'error',
-    'no-shadow': [ 'error', { 'hoist': 'all' }],
+    'no-shadow': [ 'error', { hoist: 'all' }],
     'no-throw-literal': 'error',
     'no-trailing-spaces': 'error',
     'no-undef-init': 'error',
@@ -80,15 +74,31 @@ export const standard: Linter.Config = {
     'no-unsafe-finally': 'error',
     'no-unused-expressions': 'error',
     'no-unused-labels': 'error',
-    'object-curly-spacing': [ 'error', 'always', { "objectsInObjects":  false }],
+    'object-curly-spacing': [ 'error', 'always', { objectsInObjects:  false }],
     'object-shorthand': 'error',
     'one-var': [ 'error', 'never' ],
     'prefer-arrow/prefer-arrow-functions': 'off',
     'quote-props': [ 'error', 'consistent-as-needed' ],
     'radix': 'error',
-    'space-before-function-paren': [ 'error', { 'anonymous': 'always', 'named': 'never' }],
+    'space-before-function-paren': [ 'error', { anonymous: 'always', named: 'never' }],
     'spaced-comment': 'error',
     'use-isnan': 'error',
     'valid-typeof': 'off'
+  }
+};
+
+export const standard: Linter.Config = {
+  extends: base.extends,
+  plugins: [
+    ...(base.plugins as string[]),
+    '@ephox', // means @ephox/eslint-plugin (see https://eslint.org/docs/user-guide/configuring#naming-convention )
+  ],
+  rules: {
+    ...base.rules,
+    '@ephox/no-direct-imports': 'error',
+    '@ephox/no-enums-in-export-specifier': 'error',
+    '@ephox/no-main-module-imports': 'error',
+    '@ephox/no-path-alias-imports': 'error',
+    '@ephox/no-unimported-promise': 'error',
   }
 };

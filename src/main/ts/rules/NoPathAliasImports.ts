@@ -13,10 +13,10 @@ export const noPathAliasImports: Rule.RuleModule = {
       noPathAliasImport: 'Imports with path aliases within src/main is forbidden.'
     }
   },
-  create: (context) => {
+  create: context => {
     if (isPathInMain(context.getFilename())) {
       return {
-        ImportDeclaration: (node) => {
+        ImportDeclaration: node => {
           if (isInternalPathAlias(extractModuleSpecifier(node))) {
             context.report({
               node,
