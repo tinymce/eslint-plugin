@@ -12,6 +12,7 @@ export const base: Linter.Config = {
   ],
   rules: {
     '@typescript-eslint/array-type': 'off',
+    '@typescript-eslint/ban-ts-ignore': 'off',
     '@typescript-eslint/ban-types': 'off',
     '@typescript-eslint/consistent-type-assertions': 'off',
     '@typescript-eslint/consistent-type-definitions': 'error',
@@ -19,7 +20,8 @@ export const base: Linter.Config = {
     '@typescript-eslint/explicit-member-accessibility': [ 'error', { accessibility: 'explicit' }],
     '@typescript-eslint/indent': [ 'error', 2, {
       FunctionDeclaration: { parameters: 'first' },
-      FunctionExpression: { parameters: 'first' }
+      FunctionExpression: { parameters: 'first' },
+      SwitchCase: 1
     }],
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/member-delimiter-style': [ 'error', {
@@ -29,6 +31,7 @@ export const base: Linter.Config = {
     '@typescript-eslint/member-ordering': 'error',
     '@typescript-eslint/no-empty-interface': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-inferrable-types': [ 'error', { ignoreParameters: true, ignoreProperties: true }],
     '@typescript-eslint/no-namespace': 'off',
     '@typescript-eslint/no-parameter-properties': 'off',
     '@typescript-eslint/no-unused-vars': [ 'warn', {
@@ -42,7 +45,7 @@ export const base: Linter.Config = {
     '@typescript-eslint/prefer-function-type': 'error',
     '@typescript-eslint/prefer-includes': 'off',
     '@typescript-eslint/prefer-string-starts-ends-with': 'off',
-    '@typescript-eslint/quotes': [ 'error', 'single' ],
+    '@typescript-eslint/quotes': [ 'error', 'single', { allowTemplateLiterals: true }],
     '@typescript-eslint/semi': [ 'error', 'always' ],
     '@typescript-eslint/unified-signatures': 'error',
     'array-bracket-spacing': [ 'error', 'always', { objectsInArrays: false, arraysInArrays: false }],
