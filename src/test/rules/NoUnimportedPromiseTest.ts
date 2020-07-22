@@ -22,6 +22,18 @@ ruleTester.run('no-unimported-promise', noUnimportedPromise, {
       code: 'const c = SomethingElse.resolve();'
     }, {
       code: 'const d = new SomethingElse();'
+    }, {
+      code: `
+      const Promise = function() { return {}; };
+      const e = new Promise();
+      const f = Promise.resolve();
+      `
+    }, {
+      code: `
+      const Promise = () => ({}) as unknown as PromiseConstructor;
+      const g = new Promise();
+      const h = Promise.resolve();
+      `
     }
   ],
   invalid: [
