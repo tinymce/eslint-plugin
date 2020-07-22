@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.2.0] - 2020-07-22
+
+### Added
+
+- Added the `comma-spacing`, `keyword-spacing`, `no-multi-spaces`, `space-infix-ops` and `space-unary-ops` rules to the default ruleset.
+
 ## [1.1.0] - 2020-03-16
 
 ### Changed

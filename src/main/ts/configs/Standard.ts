@@ -52,6 +52,7 @@ export const base: Linter.Config = {
     'arrow-body-style': 'error',
     'arrow-parens': [ 'error', 'always' ],
     'comma-dangle': 'off',
+    'comma-spacing': 'error',
     'complexity': 'off',
     'constructor-super': 'error',
     'curly': 'error',
@@ -62,6 +63,7 @@ export const base: Linter.Config = {
     'id-blacklist': 'error',
     'id-match': 'error',
     'import/order': 'off',
+    'keyword-spacing': 'error',
     'max-classes-per-file': [ 'error', 1 ],
     'max-len': 'off',
     'new-parens': 'error',
@@ -75,6 +77,7 @@ export const base: Linter.Config = {
     'no-eval': 'error',
     'no-fallthrough': 'off',
     'no-invalid-this': 'off',
+    'no-multi-spaces': ['error', { 'ignoreEOLComments': true }],
     'no-multiple-empty-lines': 'error',
     'no-new-wrappers': 'error',
     'no-shadow': [ 'error', { hoist: 'all' }],
@@ -93,6 +96,8 @@ export const base: Linter.Config = {
     'radix': 'error',
     'space-before-function-paren': [ 'error', { anonymous: 'always', named: 'never' }],
     'spaced-comment': 'error',
+    'space-infix-ops': 'error',
+    'space-unary-ops': 'error',
     'use-isnan': 'error',
     'valid-typeof': 'off'
   }
