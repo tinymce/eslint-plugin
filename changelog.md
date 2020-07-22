@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 
 - Fixed the `@tinymce/no-unimported-promise` incorrectly detecting local variables.
+- Fixed the `@tinymce/no-enums-in-export-specifier` detecting built-in object properties.
 
 ## [1.2.0] - 2020-04-06
 

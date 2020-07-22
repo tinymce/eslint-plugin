@@ -24,6 +24,15 @@ ruleTester.run('no-enums-in-export-specifier', noEnumsInExportSpecifier, {
         NotEnum
       };
       `
+    },
+    {
+      code: `
+      const isPrototypeOf = 'a';
+
+      export {
+        isPrototypeOf
+      };
+      `
     }
   ],
 
