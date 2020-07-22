@@ -1,23 +1,17 @@
-import { TSESTree } from '@typescript-eslint/typescript-estree';
-import { Rule } from 'eslint';
-import { ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier, VariableDeclarator } from 'estree';
+import { Rule, Scope } from 'eslint';
+import { ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier } from 'estree';
 import { exists } from '../utils/Arr';
 
 const isPromiseImportSpecifier = (specifier: ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier) => specifier.local.name === 'Promise';
 
-const isTsAsExpression = (node: TSESTree.Node): node is TSESTree.TSAsExpression => node.type === 'TSAsExpression';
-
-const extractAsExpression = (node: TSESTree.Node): TSESTree.Node => isTsAsExpression(node) ? extractAsExpression(node.expression) : node;
-
-const isPromiseVariableDeclaration = (node: VariableDeclarator) => {
-  if (node.id.type === 'Identifier' && node.id.name === 'Promise' && node.init) {
-    // The types for init are missing the TSAsExpression, so we need to cast it as the ts-etree version
-    const initNode = extractAsExpression(node.init as TSESTree.Node);
-    if (initNode.type === 'FunctionExpression' || initNode.type === 'ArrowFunctionExpression') {
+const hasPromiseInScope = (context: Rule.RuleContext) => {
+  let scope: Scope.Scope | null = context.getScope();
+  while (scope && scope.type !== 'global') {
+    if (exists(scope.variables, (v) => v.name === 'Promise')) {
       return true;
     }
+    scope = scope.upper;
   }
-
   return false;
 };
 
@@ -32,19 +26,12 @@ export const noUnimportedPromise: Rule.RuleModule = {
     }
   },
   create: (context) => {
-    let seenPromise = false;
+    let seenPromiseImport = false;
     return {
       ImportDeclaration: (node) => {
         if (node.type === 'ImportDeclaration') {
           if (exists(node.specifiers, isPromiseImportSpecifier)) {
-            seenPromise = true;
-          }
-        }
-      },
-      VariableDeclarator: (node) => {
-        if (node.type === 'VariableDeclarator') {
-          if (isPromiseVariableDeclaration(node)) {
-            seenPromise = true;
+            seenPromiseImport = true;
           }
         }
       },
@@ -55,7 +42,7 @@ export const noUnimportedPromise: Rule.RuleModule = {
             const object = callee.object;
             if (object.type === 'Identifier') {
               if (object.name === 'Promise') {
-                if (!seenPromise) {
+                if (!seenPromiseImport && !hasPromiseInScope(context)) {
                   context.report({
                     node,
                     messageId: 'promiseFillMissing',
@@ -71,7 +58,7 @@ export const noUnimportedPromise: Rule.RuleModule = {
           const callee = node.callee;
           if (callee.type === 'Identifier') {
             if (callee.name === 'Promise') {
-              if (!seenPromise) {
+              if (!seenPromiseImport && !hasPromiseInScope(context)) {
                 context.report({
                   node,
                   messageId: 'promiseFillMissing',
