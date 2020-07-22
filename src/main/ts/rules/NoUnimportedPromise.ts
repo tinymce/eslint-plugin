@@ -1,8 +1,25 @@
+import { TSESTree } from '@typescript-eslint/typescript-estree';
 import { Rule } from 'eslint';
+import { ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier, VariableDeclarator } from 'estree';
 import { exists } from '../utils/Arr';
-import { ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier } from 'estree';
 
-const isPromiseSpecifier = (specifier: ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier) => specifier.local.name === 'Promise';
+const isPromiseImportSpecifier = (specifier: ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier) => specifier.local.name === 'Promise';
+
+const isTsAsExpression = (node: TSESTree.Node): node is TSESTree.TSAsExpression => node.type === 'TSAsExpression';
+
+const extractAsExpression = (node: TSESTree.Node): TSESTree.Node => isTsAsExpression(node) ? extractAsExpression(node.expression) : node;
+
+const isPromiseVariableDeclaration = (node: VariableDeclarator) => {
+  if (node.id.type === 'Identifier' && node.id.name === 'Promise' && node.init) {
+    // The types for init are missing the TSAsExpression, so we need to cast it as the ts-etree version
+    const initNode = extractAsExpression(node.init as TSESTree.Node);
+    if (initNode.type === 'FunctionExpression' || initNode.type === 'ArrowFunctionExpression') {
+      return true;
+    }
+  }
+
+  return false;
+};
 
 export const noUnimportedPromise: Rule.RuleModule = {
   meta: {
@@ -15,12 +32,19 @@ export const noUnimportedPromise: Rule.RuleModule = {
     }
   },
   create: (context) => {
-    let seenPromiseImport = false;
+    let seenPromise = false;
     return {
       ImportDeclaration: (node) => {
         if (node.type === 'ImportDeclaration') {
-          if (exists(node.specifiers, isPromiseSpecifier)) {
-            seenPromiseImport = true;
+          if (exists(node.specifiers, isPromiseImportSpecifier)) {
+            seenPromise = true;
+          }
+        }
+      },
+      VariableDeclarator: (node) => {
+        if (node.type === 'VariableDeclarator') {
+          if (isPromiseVariableDeclaration(node)) {
+            seenPromise = true;
           }
         }
       },
@@ -31,7 +55,7 @@ export const noUnimportedPromise: Rule.RuleModule = {
             const object = callee.object;
             if (object.type === 'Identifier') {
               if (object.name === 'Promise') {
-                if (!seenPromiseImport) {
+                if (!seenPromise) {
                   context.report({
                     node,
                     messageId: 'promiseFillMissing',
@@ -47,7 +71,7 @@ export const noUnimportedPromise: Rule.RuleModule = {
           const callee = node.callee;
           if (callee.type === 'Identifier') {
             if (callee.name === 'Promise') {
-              if (!seenPromiseImport) {
+              if (!seenPromise) {
                 context.report({
                   node,
                   messageId: 'promiseFillMissing',

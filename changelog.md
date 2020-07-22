@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - Added the `comma-spacing`, `keyword-spacing`, `no-multi-spaces`, `space-infix-ops` and `space-unary-ops` rules to the default ruleset.
 
+### Fixed
+
+- Fixed the `@tinymce/no-unimported-promise` incorrectly detecting local variables.
+
 ## [1.1.0] - 2020-03-16
 
 ### Changed
