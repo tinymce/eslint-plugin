@@ -60,7 +60,7 @@ export const noUnimportedPromise: Rule.RuleModule = {
             if (callee.name === 'Promise') {
               if (!seenPromiseImport && !hasPromiseInScope(context)) {
                 context.report({
-                  node,
+                  node: callee,
                   messageId: 'promiseFillMissing',
                 });
               }
