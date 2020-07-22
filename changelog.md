@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.3.0] - 2020-07-23
+
+### Added
+
+- Added the `@typescript-eslint/keyword-spacing`, `comma-spacing`, `no-multi-spaces`, `space-infix-ops` and `space-unary-ops` rules to the default ruleset.
+
+## [1.2.0] - 2020-04-06
+
 ## [1.1.0] - 2020-03-16
 
 ### Changed
