@@ -116,5 +116,6 @@ export const standard: Linter.Config = {
     '@tinymce/no-main-module-imports': 'error',
     '@tinymce/no-path-alias-imports': 'error',
     '@tinymce/no-unimported-promise': 'error',
+    '@tinymce/no-implicit-dom-globals': 'error',
   }
 };

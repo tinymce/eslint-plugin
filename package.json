@@ -1,6 +1,6 @@
 {
   "name": "@tinymce/eslint-plugin",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "description": "Plugin for ESLint containing Tiny Technologies Inc. standard linting rules",
   "author": "Tiny Technologies Inc.",
   "main": "dist/main/ts/api/Main.js",
@@ -11,16 +11,18 @@
     "@typescript-eslint/parser": "^2.29.0",
     "eslint": "^6.8.0",
     "eslint-plugin-import": "^2.20.1",
-    "eslint-plugin-prefer-arrow": "^1.1.7"
+    "eslint-plugin-prefer-arrow": "^1.1.7",
+    "resolve": "^1.10.0",
+    "typescript": "^3.8.0"
   },
   "devDependencies": {
     "@types/eslint": "^6.1.8",
     "@types/estree": "^0.0.42",
     "@types/node": "^13.9.0",
+    "@types/resolve": "^1.17.1",
     "@typescript-eslint/typescript-estree": "^2.29.0",
     "jest": "^25.1.0",
-    "ts-jest": "^25.2.1",
-    "typescript": "^3.8.3"
+    "ts-jest": "^25.2.1"
   },
   "files": [
     "dist/main",
