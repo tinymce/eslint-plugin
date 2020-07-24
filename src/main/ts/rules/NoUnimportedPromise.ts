@@ -1,8 +1,19 @@
-import { Rule } from 'eslint';
-import { exists } from '../utils/Arr';
+import { Rule, Scope } from 'eslint';
 import { ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier } from 'estree';
+import { exists } from '../utils/Arr';
 
-const isPromiseSpecifier = (specifier: ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier) => specifier.local.name === 'Promise';
+const isPromiseImportSpecifier = (specifier: ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier) => specifier.local.name === 'Promise';
+
+const hasPromiseInScope = (context: Rule.RuleContext) => {
+  let scope: Scope.Scope | null = context.getScope();
+  while (scope && scope.type !== 'global') {
+    if (exists(scope.variables, (v) => v.name === 'Promise')) {
+      return true;
+    }
+    scope = scope.upper;
+  }
+  return false;
+};
 
 export const noUnimportedPromise: Rule.RuleModule = {
   meta: {
@@ -19,7 +30,7 @@ export const noUnimportedPromise: Rule.RuleModule = {
     return {
       ImportDeclaration: (node) => {
         if (node.type === 'ImportDeclaration') {
-          if (exists(node.specifiers, isPromiseSpecifier)) {
+          if (exists(node.specifiers, isPromiseImportSpecifier)) {
             seenPromiseImport = true;
           }
         }
@@ -31,7 +42,7 @@ export const noUnimportedPromise: Rule.RuleModule = {
             const object = callee.object;
             if (object.type === 'Identifier') {
               if (object.name === 'Promise') {
-                if (!seenPromiseImport) {
+                if (!seenPromiseImport && !hasPromiseInScope(context)) {
                   context.report({
                     node,
                     messageId: 'promiseFillMissing',
@@ -47,9 +58,9 @@ export const noUnimportedPromise: Rule.RuleModule = {
           const callee = node.callee;
           if (callee.type === 'Identifier') {
             if (callee.name === 'Promise') {
-              if (!seenPromiseImport) {
+              if (!seenPromiseImport && !hasPromiseInScope(context)) {
                 context.report({
-                  node,
+                  node: callee,
                   messageId: 'promiseFillMissing',
                 });
               }

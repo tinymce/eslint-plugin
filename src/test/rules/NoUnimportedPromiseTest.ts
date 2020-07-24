@@ -22,6 +22,18 @@ ruleTester.run('no-unimported-promise', noUnimportedPromise, {
       code: 'const c = SomethingElse.resolve();'
     }, {
       code: 'const d = new SomethingElse();'
+    }, {
+      code: `
+      const Promise = function() { return {}; };
+      const e = new Promise();
+      const f = Promise.resolve();
+      `
+    }, {
+      code: `
+      const Promise = () => ({}) as unknown as PromiseConstructor;
+      const g = new Promise();
+      const h = Promise.resolve();
+      `
     }
   ],
   invalid: [
@@ -32,6 +44,21 @@ ruleTester.run('no-unimported-promise', noUnimportedPromise, {
     {
       code: 'const b = new Promise((resolve) => {});',
       errors: [{ message: 'Promise needs a featurefill import since IE 11 doesn\'t have native support.' }],
+    },
+    {
+      code: `
+      const fn = function() {
+        const Promise = function() { return {}; };
+        const c = new Promise();
+        const d = Promise.resolve();
+      };
+      const e = new Promise();
+      const f = Promise.resolve();
+      `,
+      errors: [
+        { line: 7, message: 'Promise needs a featurefill import since IE 11 doesn\'t have native support.' },
+        { line: 8, message: 'Promise needs a featurefill import since IE 11 doesn\'t have native support.' }
+      ]
     }
   ]
 });
