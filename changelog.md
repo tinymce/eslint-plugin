@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - Added the `@typescript-eslint/keyword-spacing`, `comma-spacing`, `no-multi-spaces`, `space-infix-ops` and `space-unary-ops` rules to the default ruleset.
 
+### Fixed
+
+- Fixed the `@tinymce/no-unimported-promise` incorrectly detecting local variables.
+- Fixed the `@tinymce/no-enums-in-export-specifier` detecting built-in object properties.
+
 ## [1.2.0] - 2020-04-06
 
 ## [1.1.0] - 2020-03-16
