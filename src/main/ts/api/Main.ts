@@ -2,6 +2,7 @@ import { Linter, Rule } from 'eslint';
 import { standard } from '../configs/Standard';
 import { noDirectImports } from '../rules/NoDirectImports';
 import { noEnumsInExportSpecifier } from '../rules/NoEnumsInExportSpecifier';
+import { noImplicitDomGlobals } from '../rules/NoImplicitDomGlobals';
 import { noMainModuleImports } from '../rules/NoMainModuleImports';
 import { noPathAliasImports } from '../rules/NoPathAliasImports';
 import { noUnimportedPromise } from '../rules/NoUnimportedPromise';
@@ -11,7 +12,8 @@ const rules: Record<string, Rule.RuleModule> = {
   'no-enums-in-export-specifier': noEnumsInExportSpecifier,
   'no-main-module-imports': noMainModuleImports,
   'no-path-alias-imports': noPathAliasImports,
-  'no-unimported-promise': noUnimportedPromise
+  'no-unimported-promise': noUnimportedPromise,
+  'no-implicit-dom-globals': noImplicitDomGlobals
 };
 
 const configs: Record<string, Linter.Config> = {

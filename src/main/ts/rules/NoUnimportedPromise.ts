@@ -1,19 +1,12 @@
-import { Rule, Scope } from 'eslint';
+import { Rule } from 'eslint';
 import { ImportDefaultSpecifier, ImportNamespaceSpecifier, ImportSpecifier } from 'estree';
 import { exists } from '../utils/Arr';
+import * as NewOrCallUtils from '../utils/NewOrCallUtils';
+import { hasVariableInScope } from '../utils/ScopeUtils';
 
 const isPromiseImportSpecifier = (specifier: ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier) => specifier.local.name === 'Promise';
 
-const hasPromiseInScope = (context: Rule.RuleContext) => {
-  let scope: Scope.Scope | null = context.getScope();
-  while (scope && scope.type !== 'global') {
-    if (exists(scope.variables, (v) => v.name === 'Promise')) {
-      return true;
-    }
-    scope = scope.upper;
-  }
-  return false;
-};
+const hasPromiseInScope = (context: Rule.RuleContext) => hasVariableInScope(context, 'Promise');
 
 export const noUnimportedPromise: Rule.RuleModule = {
   meta: {
@@ -35,39 +28,17 @@ export const noUnimportedPromise: Rule.RuleModule = {
           }
         }
       },
-      CallExpression: (node) => {
-        if (node.type === 'CallExpression') {
-          const callee = node.callee;
-          if (callee.type === 'MemberExpression') {
-            const object = callee.object;
-            if (object.type === 'Identifier') {
-              if (object.name === 'Promise') {
-                if (!seenPromiseImport && !hasPromiseInScope(context)) {
-                  context.report({
-                    node,
-                    messageId: 'promiseFillMissing',
-                  });
-                }
-              }
-            }
+      ...NewOrCallUtils.forIdentifier((node, identifier) => {
+        if (identifier.name === 'Promise') {
+          if (!seenPromiseImport && !hasPromiseInScope(context)) {
+            const callee = node.type === 'NewExpression' ? identifier : node;
+            context.report({
+              node: callee,
+              messageId: 'promiseFillMissing'
+            });
           }
         }
-      },
-      NewExpression: (node) => {
-        if (node.type === 'NewExpression') {
-          const callee = node.callee;
-          if (callee.type === 'Identifier') {
-            if (callee.name === 'Promise') {
-              if (!seenPromiseImport && !hasPromiseInScope(context)) {
-                context.report({
-                  node: callee,
-                  messageId: 'promiseFillMissing',
-                });
-              }
-            }
-          }
-        }
-      }
+      })
     };
   }
 };

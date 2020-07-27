@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.4.0] - 2020-07-27
+
+### Added
+
+- Added new `@tinymce/no-implicit-dom-globals` rule to prevent dom global variables being used implicitly.
+
 ## [1.3.0] - 2020-07-23
 
 ### Added
