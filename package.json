@@ -7,13 +7,13 @@
   "repository": "git@github.com:tinymce/eslint-plugin.git",
   "license": "Apache-2.0",
   "dependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.3.0",
-    "@typescript-eslint/parser": "^4.3.0",
-    "eslint": "^7.10.0",
+    "@typescript-eslint/eslint-plugin": "^4.0.0",
+    "@typescript-eslint/parser": "^4.0.0",
+    "eslint": "^7.0.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prefer-arrow": "^1.2.2",
     "resolve": "^1.17.0",
-    "typescript": "^4.0.3"
+    "typescript": "^4.0.0"
   },
   "devDependencies": {
     "@types/eslint": "^7.2.3",
