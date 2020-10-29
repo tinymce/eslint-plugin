@@ -1,28 +1,28 @@
 {
   "name": "@tinymce/eslint-plugin",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "Plugin for ESLint containing Tiny Technologies Inc. standard linting rules",
   "author": "Tiny Technologies Inc.",
   "main": "dist/main/ts/api/Main.js",
   "repository": "git@github.com:tinymce/eslint-plugin.git",
   "license": "Apache-2.0",
   "dependencies": {
-    "@typescript-eslint/eslint-plugin": "^2.29.0",
-    "@typescript-eslint/parser": "^2.29.0",
-    "eslint": "^6.8.0",
-    "eslint-plugin-import": "^2.20.1",
-    "eslint-plugin-prefer-arrow": "^1.1.7",
-    "resolve": "^1.10.0",
-    "typescript": "^3.8.0"
+    "@typescript-eslint/eslint-plugin": "^4.0.0",
+    "@typescript-eslint/parser": "^4.0.0",
+    "eslint": "^7.0.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-prefer-arrow": "^1.2.2",
+    "resolve": "^1.17.0",
+    "typescript": "^4.0.0"
   },
   "devDependencies": {
-    "@types/eslint": "^6.1.8",
-    "@types/estree": "^0.0.42",
-    "@types/node": "^13.9.0",
+    "@types/eslint": "^7.2.3",
+    "@types/estree": "^0.0.45",
+    "@types/node": "^14.11.2",
     "@types/resolve": "^1.17.1",
-    "@typescript-eslint/typescript-estree": "^2.29.0",
-    "jest": "^25.1.0",
-    "ts-jest": "^25.2.1"
+    "@typescript-eslint/typescript-estree": "^4.3.0",
+    "jest": "^26.4.2",
+    "ts-jest": "^26.4.1"
   },
   "files": [
     "dist/main",
