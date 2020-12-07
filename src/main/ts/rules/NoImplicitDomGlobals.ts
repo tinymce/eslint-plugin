@@ -1,5 +1,6 @@
 import { Rule } from 'eslint';
-import { Identifier, Node, VariableDeclarator } from 'estree';
+import { Identifier, Node, Property, VariableDeclarator } from 'estree';
+import { extractIdentifier } from '../utils/ExtractUtils';
 import * as Globals from '../utils/Globals';
 import * as NewOrCallUtils from '../utils/NewOrCallUtils';
 import { hasVariableInScope } from '../utils/ScopeUtils';
@@ -36,6 +37,7 @@ const defaultExceptions = [
 
   // Common property accessors
   'Node',
+  'NodeFilter',
 
   // Common events
   'Event',
@@ -57,24 +59,8 @@ const getAllowedGlobals = (options: Partial<Options>): string[] => {
 
 const extractInitIdentifier = (node: VariableDeclarator): Identifier | null => {
   const init = node.init;
-  if (init) {
-    // a = Node.DOCUMENT_POSITION_PRECEDING
-    if (init.type === 'MemberExpression') {
-      const object = init.object;
-      if (object.type === 'Identifier') {
-        return object;
-      }
-    }
-
-    // a = Node
-    if (init.type === 'Identifier') {
-      return init;
-    }
-  }
-
-  return null;
+  return init ? extractIdentifier(init) : null;
 };
-
 
 export const noImplicitDomGlobals: Rule.RuleModule = {
   meta: {
@@ -108,7 +94,13 @@ export const noImplicitDomGlobals: Rule.RuleModule = {
   create: (context) => {
     const options = context.options[0] || {};
     const allowed = getAllowedGlobals(options);
-    const invalid = Globals.getDomGlobals().filter((name) => !allowed.includes(name));
+    // PERFORMANCE: Convert the invalid list to an object for better lookup times
+    const invalid = Globals.getDomGlobals()
+      .filter((name) => !allowed.includes(name))
+      .reduce<Record<string, boolean>>((acc, name) => {
+        acc[name] = true;
+        return acc;
+      }, {});
 
     const report = (node: Node) => {
       context.report({
@@ -120,21 +112,61 @@ export const noImplicitDomGlobals: Rule.RuleModule = {
       });
     };
 
+    const validateIdentifier = (identifier: Identifier | null) => {
+      if (identifier !== null) {
+        const name = identifier.name;
+        if (invalid[name] && !hasVariableInScope(context, name)) {
+          report(identifier);
+        }
+      }
+    };
+
     return {
       VariableDeclarator: (node) => {
         if (node.type === 'VariableDeclarator' && node.init) {
-          let identifier = extractInitIdentifier(node);
-          if (identifier) {
-            const name = identifier.name;
-            if (invalid.includes(name) && !hasVariableInScope(context, name)) {
-              report(identifier);
-            }
-          }
+          const identifier = extractInitIdentifier(node);
+          validateIdentifier(identifier);
+        }
+      },
+      ExpressionStatement: (node) => {
+        if (node.type === 'ExpressionStatement') {
+          const identifier = extractIdentifier(node.expression);
+          validateIdentifier(identifier);
+        }
+      },
+      ConditionalExpression: (node) => {
+        if (node.type === 'ConditionalExpression') {
+          const testIdentifier = extractIdentifier(node.test);
+          validateIdentifier(testIdentifier);
+
+          const conIdentifier = extractIdentifier(node.consequent);
+          validateIdentifier(conIdentifier);
+
+          const altIdentifier = extractIdentifier(node.alternate);
+          validateIdentifier(altIdentifier);
+        }
+      },
+      ArrayExpression: (node) => {
+        node.elements.forEach((element) => {
+          const identifier = extractIdentifier(element);
+          validateIdentifier(identifier);
+        });
+      },
+      'ObjectExpression > Property': (node: Property) => {
+        if (node.type === 'Property') {
+          const identifier = extractIdentifier(node.value);
+          validateIdentifier(identifier);
+        }
+      },
+      ReturnStatement: (node) => {
+        if (node.type === 'ReturnStatement' && node.argument) {
+          const identifier = extractIdentifier(node.argument);
+          validateIdentifier(identifier);
         }
       },
       ...NewOrCallUtils.forIdentifier((node, identifier) => {
         const name = identifier.name;
-        if (invalid.includes(name) && !hasVariableInScope(context, name)) {
+        if (invalid[name] && !hasVariableInScope(context, name)) {
           const callee = node.type === 'NewExpression' ? identifier : node;
           report(callee);
         }
