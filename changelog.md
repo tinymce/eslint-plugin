@@ -10,6 +10,27 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - Added new `@tinymce/prefer-fun` rule to detect places where `Fun.noop`, `Fun.never` and `Fun.always` should be used.
+- Added a new `editor` config that extends the standard rules to provide more editor specific rules.
+
+### Changed
+- Enabled the following additional rules by default:
+  - `@typescript-eslint/await-thenable`
+  - `@typescript-eslint/ban-ts-comment`
+  - `@typescript-eslint/consistent-type-assertions`
+  - `@typescript-eslint/consistent-type-definitions`
+  - `@typescript-eslint/no-for-in-array`
+  - `@typescript-eslint/no-implied-eval`
+  - `@typescript-eslint/no-namespace`
+  - `@typescript-eslint/no-parameter-properties`
+  - `@typescript-eslint/switch-exhaustiveness-check`
+  - `@typescript-eslint/type-annotation-spacing`
+  - `arrow-spacing`
+  - `dot-location`
+  - `max-len`
+  - `no-fallthrough`
+  - `no-nested-ternary`
+  - `prefer-arrow/prefer-arrow-functions`
+  - `space-before-blocks`
 
 ## [1.5.2] - 2020-12-08
 
