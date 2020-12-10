@@ -1,4 +1,5 @@
 import { Linter, Rule } from 'eslint';
+import { editor } from '../configs/Editor';
 import { standard } from '../configs/Standard';
 import { noDirectImports } from '../rules/NoDirectImports';
 import { noEnumsInExportSpecifier } from '../rules/NoEnumsInExportSpecifier';
@@ -19,7 +20,8 @@ const rules: Record<string, Rule.RuleModule> = {
 };
 
 const configs: Record<string, Linter.Config> = {
-  standard
+  standard,
+  editor
 };
 
 module.exports = {
