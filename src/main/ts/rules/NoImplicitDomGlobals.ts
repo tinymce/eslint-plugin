@@ -1,5 +1,5 @@
 import { Rule } from 'eslint';
-import { Identifier, Node, Property, VariableDeclarator } from 'estree';
+import { Expression, Identifier, Node, Property, VariableDeclarator } from 'estree';
 import { extractIdentifier } from '../utils/ExtractUtils';
 import * as Globals from '../utils/Globals';
 import * as NewOrCallUtils from '../utils/NewOrCallUtils';
@@ -132,6 +132,15 @@ export const noImplicitDomGlobals: Rule.RuleModule = {
         if (node.type === 'ExpressionStatement') {
           const identifier = extractIdentifier(node.expression);
           validateIdentifier(identifier);
+        }
+      },
+      'AssignmentExpression,BinaryExpression': (node: Expression) => {
+        if (node.type === 'AssignmentExpression' || node.type === 'BinaryExpression') {
+          const leftIdentifier = extractIdentifier(node.left);
+          validateIdentifier(leftIdentifier);
+
+          const rightIdentifier = extractIdentifier(node.right);
+          validateIdentifier(rightIdentifier);
         }
       },
       ConditionalExpression: (node) => {

@@ -100,5 +100,10 @@ ruleTester.run('no-implicit-dom-globals', noImplicitDomGlobals, {
       ],
       output: 'const j = a ? window.name : window.location.href;'
     },
+    {
+      code: 'HTMLInputElement.prototype.click = props.click;',
+      errors: [{ message: 'Don\'t use implicit dom globals. Access the global via the window object instead.' }],
+      output: 'window.HTMLInputElement.prototype.click = props.click;'
+    }
   ]
 });

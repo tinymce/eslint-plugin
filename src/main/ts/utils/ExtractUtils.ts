@@ -17,9 +17,6 @@ export const extractIdentifier = (node: Expression | Super | SpreadElement | Pat
     // Node.DOCUMENT_POSITION_PRECEDING
   } else if (node.type === 'MemberExpression') {
     return extractIdentifier(node.object);
-    // a = Node
-  } else if (node.type === 'AssignmentExpression') {
-    return extractIdentifier(node.right);
     // ...Node
   } else if (node.type === 'SpreadElement') {
     return extractIdentifier(node.argument);
