@@ -22,6 +22,13 @@ ruleTester.run('no-implicit-dom-globals', noImplicitDomGlobals, {
     },
     {
       code: 'window.history.pushState({}, "", "url");'
+    },
+    {
+      code: `
+      const f = (str: string): void => {};
+      const name = 'Test';
+      f(name);
+      `
     }
   ],
   invalid: [
