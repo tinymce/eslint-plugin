@@ -91,6 +91,7 @@ export const base: Linter.Config = {
     'id-blacklist': 'error',
     'id-match': 'error',
     'import/order': 'off',
+    'key-spacing': [ 'error', { beforeColon: false, afterColon: true, mode: 'strict' }],
     'max-classes-per-file': [ 'error', 1 ],
     'max-len': [ 'warn', 160 ],
     'new-parens': 'error',
