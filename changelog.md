@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [1.6.0] - TBD
+## [1.6.0] - 2020-10-14
 
 ### Added
 - Added new `@tinymce/prefer-fun` rule to detect places where `Fun.noop`, `Fun.never` and `Fun.always` should be used.
