@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   - `@typescript-eslint/type-annotation-spacing`
   - `arrow-spacing`
   - `dot-location`
+  - `key-spacing`
   - `max-len`
   - `no-fallthrough`
   - `no-nested-ternary`
