@@ -22,6 +22,13 @@ ruleTester.run('no-implicit-dom-globals', noImplicitDomGlobals, {
     },
     {
       code: 'window.history.pushState({}, "", "url");'
+    },
+    {
+      code: `
+      const f = (str: string): void => {};
+      const name = 'Test';
+      f(name);
+      `
     }
   ],
   invalid: [
@@ -55,5 +62,55 @@ ruleTester.run('no-implicit-dom-globals', noImplicitDomGlobals, {
       errors: [{ message: 'Don\'t use implicit dom globals. Access the global via the window object instead.' }],
       output: 'window.history.pushState({}, "", "url");'
     },
+    {
+      code: `
+      const f = (str: string): void => {};
+      f(name);
+      `,
+      errors: [{ message: 'Don\'t use implicit dom globals. Access the global via the window object instead.' }],
+      output: `
+      const f = (str: string): void => {};
+      f(window.name);
+      `
+    },
+    {
+      code: `
+      let g: string;
+      g = name;
+      `,
+      errors: [{ message: 'Don\'t use implicit dom globals. Access the global via the window object instead.' }],
+      output: `
+      let g: string;
+      g = window.name;
+      `
+    },
+    {
+      code: 'const h = [ name ];',
+      errors: [{ message: 'Don\'t use implicit dom globals. Access the global via the window object instead.' }],
+      output: 'const h = [ window.name ];'
+    },
+    {
+      code: 'const i = { test: name };',
+      errors: [{ message: 'Don\'t use implicit dom globals. Access the global via the window object instead.' }],
+      output: 'const i = { test: window.name };'
+    },
+    {
+      code: 'return location.href;',
+      errors: [{ message: 'Don\'t use implicit dom globals. Access the global via the window object instead.' }],
+      output: 'return window.location.href;'
+    },
+    {
+      code: 'const j = a ? name : location.href;',
+      errors: [
+        { message: 'Don\'t use implicit dom globals. Access the global via the window object instead.' },
+        { message: 'Don\'t use implicit dom globals. Access the global via the window object instead.' }
+      ],
+      output: 'const j = a ? window.name : window.location.href;'
+    },
+    {
+      code: 'HTMLInputElement.prototype.click = props.click;',
+      errors: [{ message: 'Don\'t use implicit dom globals. Access the global via the window object instead.' }],
+      output: 'window.HTMLInputElement.prototype.click = props.click;'
+    }
   ]
 });
