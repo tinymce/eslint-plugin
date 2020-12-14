@@ -94,13 +94,8 @@ export const noImplicitDomGlobals: Rule.RuleModule = {
   create: (context) => {
     const options = context.options[0] || {};
     const allowed = getAllowedGlobals(options);
-    // PERFORMANCE: Convert the invalid list to an object for better lookup times
-    const invalid = Globals.getDomGlobals()
-      .filter((name) => !allowed.includes(name))
-      .reduce<Record<string, boolean>>((acc, name) => {
-        acc[name] = true;
-        return acc;
-      }, {});
+    // PERFORMANCE: Convert the invalid list to a Set for better lookup times
+    const invalid = new Set(Globals.getDomGlobals().filter((name) => !allowed.includes(name)));
 
     const report = (node: Node) => {
       context.report({
@@ -115,7 +110,7 @@ export const noImplicitDomGlobals: Rule.RuleModule = {
     const validateIdentifier = (identifier: Identifier | null) => {
       if (identifier !== null) {
         const name = identifier.name;
-        if (invalid[name] && !hasVariableInScope(context, name)) {
+        if (invalid.has(name) && !hasVariableInScope(context, name)) {
           report(identifier);
         }
       }
@@ -175,7 +170,7 @@ export const noImplicitDomGlobals: Rule.RuleModule = {
       },
       ...NewOrCallUtils.forIdentifier((node, identifier) => {
         const name = identifier.name;
-        if (invalid[name] && !hasVariableInScope(context, name)) {
+        if (invalid.has(name) && !hasVariableInScope(context, name)) {
           const callee = node.type === 'NewExpression' ? identifier : node;
           report(callee);
         }

@@ -34,5 +34,8 @@
     "lint": "eslint src/**/*.ts",
     "test": "jest",
     "prepublishOnly": "tsc"
+  },
+  "engines": {
+    "node": ">=9.0.0"
   }
 }
