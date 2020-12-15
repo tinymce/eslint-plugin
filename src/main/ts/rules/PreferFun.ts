@@ -1,10 +1,36 @@
 import { Rule } from 'eslint';
-import { ArrowFunctionExpression, Expression, FunctionExpression, Literal, Statement } from 'estree';
+import { ArrowFunctionExpression, CallExpression, Expression, FunctionExpression, Literal, MemberExpression, Statement } from 'estree';
 import * as path from 'path';
+import { findVariableFromScope } from '../utils/ScopeUtils';
 
 const isKatamariFunModule = (filePath: string): boolean => {
   const pathWithoutExt = filePath.replace(/\.[tj]s$/, '');
   return pathWithoutExt.endsWith(path.join('katamari', 'api', 'Fun'));
+};
+
+const isKatamariFunConstant = (context: Rule.RuleContext, node: MemberExpression) => {
+  const property = node.property;
+  const object = node.object;
+
+  const isFunModule = object.type === 'Identifier' && object.name === 'Fun';
+  const isConstantFunction = property.type === 'Identifier' && property.name === 'constant';
+
+  if (isFunModule && isConstantFunction) {
+    // Ensure the Fun identifier is referring to the import from katamari
+    const funVar = findVariableFromScope(context, 'Fun');
+    if (funVar !== undefined && funVar.defs.length > 0) {
+      const def = funVar.defs[0];
+      const parent = def.parent;
+      if (def.type === 'ImportBinding' && parent?.type === 'ImportDeclaration') {
+        const parentSource = parent.source;
+        if (parentSource.type === 'Literal' && parentSource.raw?.includes('katamari')) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
 };
 
 export const preferFun: Rule.RuleModule = {
@@ -20,7 +46,7 @@ export const preferFun: Rule.RuleModule = {
     }
   },
   create: (context) => {
-    const reportIfRequired = (func: FunctionExpression | ArrowFunctionExpression, literal: Literal | null) => {
+    const reportIfRequired = (func: CallExpression | FunctionExpression | ArrowFunctionExpression, literal: Literal | null) => {
       if (literal === null) {
         context.report({
           node: func,
@@ -72,6 +98,17 @@ export const preferFun: Rule.RuleModule = {
         ArrowFunctionExpression: (node) => {
           if (node.type === 'ArrowFunctionExpression' && node.params.length === 0) {
             validateFunctionBody(node, node.body);
+          }
+        },
+        CallExpression: (node) => {
+          if (node.type === 'CallExpression') {
+            const callee = node.callee;
+            if (callee.type === 'MemberExpression' && node.arguments.length === 1 && isKatamariFunConstant(context, callee)) {
+              const arg = node.arguments[0];
+              if (arg.type === 'Literal') {
+                reportIfRequired(node, arg);
+              }
+            }
           }
         }
       };

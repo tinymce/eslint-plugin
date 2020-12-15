@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.7.0] - 2020-10-16
+
+### Changed
+- Enabled the `brace-style` rule to ensure code cannot be on the same line as if/else statements.
+
+### Fixed
+- `Fun.constant(false)` was not detected as syntax that should be replaced by `Fun.never`.
+
 ## [1.6.0] - 2020-10-14
 
 ### Added

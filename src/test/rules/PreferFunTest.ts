@@ -59,11 +59,14 @@ ruleTester.run('prefer-fun', preferFun, {
     },
     {
       code: `
+      import { Fun } from '@ephox/katamari';
       const e = () => true;
       const f = function () { return true; };
       const g = { a: function () { return true; } };
+      const h = Fun.constant(true);
       `,
       errors: [
+        { message: 'Use `Fun.always` instead of redeclaring a function that always returns true, eg: `() => true`' },
         { message: 'Use `Fun.always` instead of redeclaring a function that always returns true, eg: `() => true`' },
         { message: 'Use `Fun.always` instead of redeclaring a function that always returns true, eg: `() => true`' },
         { message: 'Use `Fun.always` instead of redeclaring a function that always returns true, eg: `() => true`' }
@@ -71,11 +74,14 @@ ruleTester.run('prefer-fun', preferFun, {
     },
     {
       code: `
-      const h = () => false;
-      const i = function () { return false; };
-      const j = { a: () => false };
+      import { Fun } from '@ephox/katamari';
+      const i = () => false;
+      const j = function () { return false; };
+      const k = { a: () => false };
+      const l = Fun.constant(false);
       `,
       errors: [
+        { message: 'Use `Fun.never` instead of redeclaring a function that always returns false, eg: `() => false`' },
         { message: 'Use `Fun.never` instead of redeclaring a function that always returns false, eg: `() => false`' },
         { message: 'Use `Fun.never` instead of redeclaring a function that always returns false, eg: `() => false`' },
         { message: 'Use `Fun.never` instead of redeclaring a function that always returns false, eg: `() => false`' }
