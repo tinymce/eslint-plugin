@@ -79,6 +79,7 @@ export const base: Linter.Config = {
     'arrow-body-style': 'error',
     'arrow-parens': [ 'error', 'always' ],
     'arrow-spacing': 'error',
+    'brace-style': 'error',
     'comma-dangle': 'off',
     'complexity': 'off',
     'constructor-super': 'error',
