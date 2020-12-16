@@ -1,6 +1,7 @@
 import { Rule } from 'eslint';
 import { ArrowFunctionExpression, CallExpression, Expression, FunctionExpression, Literal, MemberExpression, Statement } from 'estree';
 import * as path from 'path';
+import { extractModuleSpecifier } from '../utils/ExtractUtils';
 import { findVariableFromScope } from '../utils/ScopeUtils';
 
 const isKatamariFunModule = (filePath: string): boolean => {
@@ -22,10 +23,7 @@ const isKatamariFunConstant = (context: Rule.RuleContext, node: MemberExpression
       const def = funVar.defs[0];
       const parent = def.parent;
       if (def.type === 'ImportBinding' && parent?.type === 'ImportDeclaration') {
-        const parentSource = parent.source;
-        if (parentSource.type === 'Literal' && parentSource.raw?.includes('katamari')) {
-          return true;
-        }
+        return extractModuleSpecifier(parent).includes('katamari');
       }
     }
   }
