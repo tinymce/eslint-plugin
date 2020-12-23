@@ -1,6 +1,6 @@
 {
   "name": "@tinymce/eslint-plugin",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "description": "Plugin for ESLint containing Tiny Technologies Inc. standard linting rules",
   "author": "Tiny Technologies Inc.",
   "main": "dist/main/ts/api/Main.js",
