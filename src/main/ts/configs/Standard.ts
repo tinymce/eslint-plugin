@@ -8,6 +8,7 @@ export const base: Linter.Config = {
   plugins: [
     '@typescript-eslint',
     'import',
+    'mocha',
     'prefer-arrow',
   ],
   rules: {
@@ -95,6 +96,8 @@ export const base: Linter.Config = {
     'key-spacing': [ 'error', { beforeColon: false, afterColon: true, mode: 'strict' }],
     'max-classes-per-file': [ 'error', 1 ],
     'max-len': [ 'warn', 160 ],
+    'mocha/no-exclusive-tests': 'error',
+    'mocha/no-identical-title': 'error',
     'new-parens': 'error',
     'no-bitwise': 'error',
     'no-caller': 'error',
@@ -126,6 +129,7 @@ export const base: Linter.Config = {
     'space-before-blocks': 'error',
     'spaced-comment': 'error',
     'space-unary-ops': 'error',
+    'template-curly-spacing': 'error',
     'use-isnan': 'error',
     'valid-typeof': 'off',  // Disabled as it's handled by TypeScript
 
