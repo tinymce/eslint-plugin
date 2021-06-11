@@ -20,8 +20,13 @@ export const editor: Linter.Config = {
     }],
     'arrow-body-style': 'off', // Disabled as it causes readability issues in more complex cases
     'import/order': [ 'error', {
-      groups: [ 'builtin', 'external', 'internal', 'parent', 'sibling', 'index' ],
-      alphabetize: {
+      'newlines-between': 'always',
+      'groups': [
+        [ 'builtin', 'external' ],
+        'internal',
+        [ 'parent', 'sibling', 'index' ]
+      ],
+      'alphabetize': {
         order: 'asc',
         caseInsensitive: true
       }
