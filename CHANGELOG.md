@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 1.9.0 - 2021-06-14
+
+### Changed
+- The editor configuration now enforces newlines between import groups.
+
 ## 1.8.0 - 2021-05-24
 
 ### Added
