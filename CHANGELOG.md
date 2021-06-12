@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## 1.9.0 - 2021-06-14
 
+### Improved
+- The `@tinymce/no-main-module-imports` rule now detects Main imports via aliases from outside the `src/` directory.
+
 ### Changed
 - The editor configuration now enforces newlines between import groups.
 
