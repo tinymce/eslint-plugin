@@ -43,6 +43,16 @@ ruleTester.run('no-main-module-imports', noMainModuleImports, {
       code: 'import { B } from \'../api/Main\';',
       filename: 'src/main/ts/core/File.ts',
       errors: [{ message: 'Direct import to Main module is forbidden.' }]
+    },
+    {
+      code: 'import { A } from \'ephox/swag/api/Main\';',
+      filename: 'src/test/ts/File.ts',
+      errors: [{ message: 'Direct import to Main module is forbidden.' }]
+    },
+    {
+      code: 'import { A } from \'ephox/swag/api/Main\';',
+      filename: 'src/demo/ts/Demo.ts',
+      errors: [{ message: 'Direct import to Main module is forbidden.' }]
     }
   ]
 });

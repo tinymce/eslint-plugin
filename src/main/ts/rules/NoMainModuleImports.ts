@@ -1,7 +1,11 @@
 import { Rule } from 'eslint';
-import { isMainImport } from '../utils/ImportUtils';
+import { isInternalPathAlias, isMainImport } from '../utils/ImportUtils';
 import { isPathInMain } from '../utils/PathUtils';
 import { extractModuleSpecifier } from '../utils/ExtractUtils';
+
+const mainPathValidator = isMainImport;
+
+const genericPathValidator = (path: string) => isMainImport(path) && isInternalPathAlias(path);
 
 export const noMainModuleImports: Rule.RuleModule = {
   meta: {
@@ -14,19 +18,18 @@ export const noMainModuleImports: Rule.RuleModule = {
     }
   },
   create: (context) => {
-    if (isPathInMain(context.getFilename())) {
-      return {
-        ImportDeclaration: (node) => {
-          if (isMainImport(extractModuleSpecifier(node))) {
-            context.report({
-              node,
-              messageId: 'noMainImport',
-            });
-          }
+    const filename = context.getFilename();
+    const validator = isPathInMain(filename) ? mainPathValidator : genericPathValidator;
+    return {
+      ImportDeclaration: (node) => {
+        const moduleSpecifier = extractModuleSpecifier(node);
+        if (validator(moduleSpecifier)) {
+          context.report({
+            node,
+            messageId: 'noMainImport',
+          });
         }
-      };
-    } else {
-      return {};
-    }
+      }
+    };
   }
 };
