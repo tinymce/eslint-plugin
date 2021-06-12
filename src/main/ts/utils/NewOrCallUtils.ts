@@ -32,5 +32,5 @@ export const forIdentifier = (f: (node: CallExpression | NewExpression | Identif
         checkArguments(node);
       }
     }
-  }
+  };
 };

@@ -28,9 +28,9 @@ ruleTester.run('prefer-fun', preferFun, {
     },
     {
       code: `
-      const d = () => 'some string';
-      const e = { a: () => d };
-      const f = function () { return 6; };
+      const d = Fun.constant('some string');
+      const e = { a: Fun.constant(d) };
+      const f = Fun.constant(6);
       `
     },
     {
@@ -39,6 +39,22 @@ ruleTester.run('prefer-fun', preferFun, {
       const noop = () => { };
       const never = () => false;
       const always = () => true;
+      `
+    },
+    {
+      code: `
+      let g = 'word';
+      const h = () => g;
+      const i = () => j;
+      const j = { };
+      const k = function() { return /a+/; };
+      const l = () => \`\${g}\`;
+      `
+    },
+    {
+      code: `
+      const m = '';
+      const n = <T>(): Maybe<T> => l;
       `
     }
   ],
@@ -85,6 +101,20 @@ ruleTester.run('prefer-fun', preferFun, {
         { message: 'Use `Fun.never` instead of redeclaring a function that always returns false, eg: `() => false`' },
         { message: 'Use `Fun.never` instead of redeclaring a function that always returns false, eg: `() => false`' },
         { message: 'Use `Fun.never` instead of redeclaring a function that always returns false, eg: `() => false`' }
+      ],
+    },
+    {
+      code: `
+      const m = () => 'some string';
+      const n = { a: () => m };
+      const o = function () { return 6; };
+      const p = () => \`template\`;
+      `,
+      errors: [
+        { message: 'Use `Fun.constant` instead of redeclaring a function that always returns the same value, eg: `() => 0`' },
+        { message: 'Use `Fun.constant` instead of redeclaring a function that always returns the same value, eg: `() => 0`' },
+        { message: 'Use `Fun.constant` instead of redeclaring a function that always returns the same value, eg: `() => 0`' },
+        { message: 'Use `Fun.constant` instead of redeclaring a function that always returns the same value, eg: `() => 0`' }
       ],
     }
   ]
