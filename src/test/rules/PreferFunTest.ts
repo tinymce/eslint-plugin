@@ -116,6 +116,16 @@ ruleTester.run('prefer-fun', preferFun, {
         { message: 'Use `Fun.constant` instead of redeclaring a function that always returns the same value, eg: `() => 0`' },
         { message: 'Use `Fun.constant` instead of redeclaring a function that always returns the same value, eg: `() => 0`' }
       ],
+    },
+    {
+      code: `
+      const q = function(x) { return x; };
+      const r = [].map((x) => x);
+      `,
+      errors: [
+        { message: 'Use `Fun.identity` instead of redeclaring a function that always returns the arguments, eg: `(x) => x`' },
+        { message: 'Use `Fun.identity` instead of redeclaring a function that always returns the arguments, eg: `(x) => x`' }
+      ],
     }
   ]
 });
