@@ -13,7 +13,8 @@ const enum Option {
   Noop = 'Noop',
   Never = 'Never',
   Always = 'Always',
-  Constant = 'Constant'
+  Constant = 'Constant',
+  Identity = 'Identity'
 }
 
 const isKatamariFunModule = (filePath: string): boolean => {
@@ -54,12 +55,9 @@ const isBooleanLiteral = (expr: Expression | SpreadElement): expr is Literal => 
   }
 };
 
-const isFunctionExpression = (expr: Expression): expr is FunctionExpression =>
-  expr.type === 'FunctionExpression' || expr.type === 'ArrowFunctionExpression';
-
 const isConstant = (context: Rule.RuleContext, func: FuncExpression, obj: Expression): boolean => {
-  if (hasTypeParameters(func)) {
-    // If the function has type generics then treat it as not being constant
+  if (func.params.length !== 0 || hasTypeParameters(func)) {
+    // If the function has type generics or arguments then treat it as not being constant
     return false;
   } else if (obj.type === 'Literal') {
     // Regexes can maintain state, so they aren't considered a constant
@@ -75,13 +73,41 @@ const isConstant = (context: Rule.RuleContext, func: FuncExpression, obj: Expres
   }
 };
 
-const hasTypeParameters = (func: CallExpression | FunctionExpression | ArrowFunctionExpression): boolean => {
+const isIdentity = (func: FuncExpression, expr: Expression) => {
+  if (func.params.length === 1 && !hasTypeParameters(func)) {
+    const param = func.params[0];
+    return param.type === 'Identifier' && expr.type === 'Identifier' && param.name === expr.name;
+  } else {
+    return false;
+  }
+};
+
+const hasTypeParameters = (func: FuncExpression): boolean => {
   const tsFunc = func as TSESTree.CallExpression | TSESTree.ArrowFunctionExpression | TSESTree.FunctionExpression;
   const params = tsFunc.typeParameters;
   if (params !== undefined && params.type === 'TSTypeParameterDeclaration') {
     return params.params.length > 0;
   } else {
     return false;
+  }
+};
+
+const extractFunctionBodyExpression = (func: FuncExpression, body: Statement | Expression | null): Statement | Expression | null => {
+  if (body === null) {
+    return body;
+  } else if (body.type === 'BlockStatement') {
+    const funcBody = body.body;
+    if (funcBody.length === 1) {
+      return extractFunctionBodyExpression(func, funcBody[0]);
+    } else if (funcBody.length === 0) {
+      return null;
+    } else {
+      return body;
+    }
+  } else if (body.type === 'ReturnStatement' && body.argument !== undefined) {
+    return extractFunctionBodyExpression(func, body.argument);
+  } else {
+    return body;
   }
 };
 
@@ -95,7 +121,8 @@ export const preferFun: Rule.RuleModule = {
       preferNoop: 'Use `Fun.noop` instead of redeclaring a no-op function, eg: `() => {}`',
       preferAlways: 'Use `Fun.always` instead of redeclaring a function that always returns true, eg: `() => true`',
       preferNever: 'Use `Fun.never` instead of redeclaring a function that always returns false, eg: `() => false`',
-      preferConstant: 'Use `Fun.constant` instead of redeclaring a function that always returns the same value, eg: `() => 0`'
+      preferConstant: 'Use `Fun.constant` instead of redeclaring a function that always returns the same value, eg: `() => 0`',
+      preferIdentity: 'Use `Fun.identity` instead of redeclaring a function that always returns the arguments, eg: `(x) => x`'
     },
     schema: [
       {
@@ -104,7 +131,8 @@ export const preferFun: Rule.RuleModule = {
           noop: { type: 'boolean' },
           always: { type: 'boolean' },
           never: { type: 'boolean' },
-          constant: { type: 'boolean' }
+          constant: { type: 'boolean' },
+          identity: { type: 'boolean' }
         },
         additionalProperties: false
       }
@@ -122,32 +150,28 @@ export const preferFun: Rule.RuleModule = {
       }
     };
 
-    const reportIfRequired = (func: CallExpression | FuncExpression, expr: Expression | null) => {
-      if (expr === null) {
-        report(func, Option.Noop);
-      } else if (isBooleanLiteral(expr)) {
-        report(func, expr.raw === 'true' ? Option.Always : Option.Never);
-      } else if (isFunctionExpression(func)) {
+    const reportIfRequired = (func: FuncExpression, expr: Expression | null) => {
+      const numArgs = func.params.length;
+      if (numArgs === 0) {
+        if (expr === null) {
+          report(func, Option.Noop);
+        } else if (isBooleanLiteral(expr)) {
+          report(func, expr.raw === 'true' ? Option.Always : Option.Never);
         // We're dealing with an identifier, primitive value, regex or similar here
-        // so we potentially should be using Fun.constant()
-        if (isConstant(context, func, expr)) {
+        } else if (isConstant(context, func, expr)) {
           report(func, Option.Constant);
+        }
+      } else if (numArgs === 1) {
+        if (expr !== null && isIdentity(func, expr)) {
+          report(func, Option.Identity);
         }
       }
     };
 
-    const validateFunctionBody = (func: FuncExpression, body: Statement | Expression | null) => {
-      if (body === null || body.type === 'Literal' || body.type === 'Identifier' || body.type === 'TemplateLiteral') {
-        reportIfRequired(func, body);
-      } else if (body.type === 'BlockStatement') {
-        const funcBody = body.body;
-        if (funcBody.length === 1) {
-          validateFunctionBody(func, funcBody[0]);
-        } else if (funcBody.length === 0) {
-          report(func, Option.Noop);
-        }
-      } else if (body.type === 'ReturnStatement' && body.argument !== undefined) {
-        validateFunctionBody(func, body.argument);
+    const validateFunctionBody = (func: FuncExpression, body: Statement | Expression) => {
+      const returnExpr = extractFunctionBodyExpression(func, body);
+      if (returnExpr === null || returnExpr.type === 'Literal' || returnExpr.type === 'Identifier' || returnExpr.type === 'TemplateLiteral') {
+        reportIfRequired(func, returnExpr);
       }
     };
 
@@ -157,12 +181,12 @@ export const preferFun: Rule.RuleModule = {
     } else {
       return {
         FunctionExpression: (node) => {
-          if (node.type === 'FunctionExpression' && node.params.length === 0) {
+          if (node.type === 'FunctionExpression' && node.params.length <= 1) {
             validateFunctionBody(node, node.body);
           }
         },
         ArrowFunctionExpression: (node) => {
-          if (node.type === 'ArrowFunctionExpression' && node.params.length === 0) {
+          if (node.type === 'ArrowFunctionExpression' && node.params.length <= 1) {
             validateFunctionBody(node, node.body);
           }
         },
@@ -173,7 +197,7 @@ export const preferFun: Rule.RuleModule = {
               const arg = node.arguments[0];
               // We only care about Fun.constant(false) or Fun.constant(true) here
               if (isBooleanLiteral(arg)) {
-                reportIfRequired(node, arg);
+                report(node, arg.raw === 'true' ? Option.Always : Option.Never);
               }
             }
           }
