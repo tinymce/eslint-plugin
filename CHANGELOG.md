@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-## 1.9.0 - 2021-06-14
+## 1.9.0 - 2021-06-17
 
 ### Added
 - The `@tinymce/prefer-fun` rule now supports configuring which rules should be checked.
