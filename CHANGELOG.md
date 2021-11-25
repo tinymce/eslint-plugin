@@ -6,8 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 2.0.0 - 2021-11-25
+
 ### Changed
 - Upgraded to require ESLint 8.x.
+- The `@tinymce/no-unimported-promise` is no longer enabled by default.
 
 ## 1.9.0 - 2021-06-17
 
