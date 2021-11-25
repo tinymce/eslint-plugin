@@ -5,10 +5,10 @@ import * as ts from 'typescript';
 const globalsCache: Record<string, any> = {};
 
 const getVariableExportList = (ast: ts.SourceFile) => {
-  const vars: string[] = [];
+  const vars: ts.__String[] = [];
 
   const addVariable = (node: ts.Node) => {
-    const name = (node as any).name;
+    const name: ts.Identifier = (node as any).name;
     if (name && name.kind === ts.SyntaxKind.Identifier) {
       vars.push(name.escapedText);
     }
@@ -24,9 +24,11 @@ const getVariableExportList = (ast: ts.SourceFile) => {
 
       case ts.SyntaxKind.VariableStatement:
         const statement = node as ts.VariableStatement;
-        statement.declarationList.declarations.forEach((node) => {
-          addVariable(node);
+        statement.declarationList.declarations.forEach((decl) => {
+          addVariable(decl);
         });
+        break;
+      default:
         break;
     }
   });
@@ -44,7 +46,7 @@ export const getDomGlobals = (): string[] => {
     const ast = prog.getSourceFile(domLib);
 
     // Extract the variables and cache the dom globals lookup
-    globalsCache['dom'] = ast ? getVariableExportList(ast) : [];
+    globalsCache.dom = ast ? getVariableExportList(ast) : [];
   }
-  return globalsCache['dom'];
+  return globalsCache.dom;
 };

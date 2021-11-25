@@ -119,7 +119,7 @@ export const base: Linter.Config = {
     'no-unsafe-finally': 'error',
     'no-unused-expressions': [ 'error', { allowTernary: true }],
     'no-unused-labels': 'error',
-    'object-curly-spacing': [ 'error', 'always', { objectsInObjects:  false }],
+    'object-curly-spacing': [ 'error', 'always', { objectsInObjects: false }],
     'object-shorthand': 'error',
     'one-var': [ 'error', 'never' ],
     'prefer-arrow-callback': 'off', // Covered by prefer-arrow-functions

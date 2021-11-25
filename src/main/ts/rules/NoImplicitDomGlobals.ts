@@ -92,18 +92,16 @@ export const noImplicitDomGlobals: Rule.RuleModule = {
     ]
   },
   create: (context) => {
-    const options = context.options[0] || {};
+    const options: Partial<Options> = context.options[0] || {};
     const allowed = getAllowedGlobals(options);
     // PERFORMANCE: Convert the invalid list to a Set for better lookup times
     const invalid = new Set(Globals.getDomGlobals().filter((name) => !allowed.includes(name)));
 
     const report = (node: Node) => {
       context.report({
-        node: node,
+        node,
         messageId: 'noImplicitDomGlobals',
-        fix: (fixer: Rule.RuleFixer): Rule.Fix => {
-          return fixer.insertTextBefore(node, 'window.');
-        }
+        fix: (fixer: Rule.RuleFixer): Rule.Fix => fixer.insertTextBefore(node, 'window.')
       });
     };
 
@@ -117,13 +115,13 @@ export const noImplicitDomGlobals: Rule.RuleModule = {
     };
 
     return {
-      VariableDeclarator: (node) => {
+      'VariableDeclarator': (node) => {
         if (node.type === 'VariableDeclarator' && node.init) {
           const identifier = extractInitIdentifier(node);
           validateIdentifier(identifier);
         }
       },
-      ExpressionStatement: (node) => {
+      'ExpressionStatement': (node) => {
         if (node.type === 'ExpressionStatement') {
           const identifier = extractIdentifier(node.expression);
           validateIdentifier(identifier);
@@ -138,7 +136,7 @@ export const noImplicitDomGlobals: Rule.RuleModule = {
           validateIdentifier(rightIdentifier);
         }
       },
-      ConditionalExpression: (node) => {
+      'ConditionalExpression': (node) => {
         if (node.type === 'ConditionalExpression') {
           const testIdentifier = extractIdentifier(node.test);
           validateIdentifier(testIdentifier);
@@ -150,7 +148,7 @@ export const noImplicitDomGlobals: Rule.RuleModule = {
           validateIdentifier(altIdentifier);
         }
       },
-      ArrayExpression: (node) => {
+      'ArrayExpression': (node) => {
         node.elements.forEach((element) => {
           const identifier = extractIdentifier(element);
           validateIdentifier(identifier);
@@ -162,7 +160,7 @@ export const noImplicitDomGlobals: Rule.RuleModule = {
           validateIdentifier(identifier);
         }
       },
-      ReturnStatement: (node) => {
+      'ReturnStatement': (node) => {
         if (node.type === 'ReturnStatement' && node.argument) {
           const identifier = extractIdentifier(node.argument);
           validateIdentifier(identifier);
