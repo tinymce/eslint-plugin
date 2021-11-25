@@ -13,7 +13,7 @@
     "noUnusedParameters": true,
     "pretty": true,
     "resolveJsonModule": true,
-    "sourceMap": false,
+    "sourceMap": true,
     "strict": true,
     "target": "es2017",
     "lib": ["es2017"],
