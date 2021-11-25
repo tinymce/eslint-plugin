@@ -10,15 +10,15 @@ export const extractModuleSpecifier = (node: Node) => {
   return '';
 };
 
-export const extractIdentifier = (node: Expression | Super | SpreadElement | Pattern): Identifier | null => {
+export const extractIdentifier = (node: Expression | Super | SpreadElement | Pattern | null): Identifier | null => {
   // Node
-  if (node.type === 'Identifier') {
+  if (node?.type === 'Identifier') {
     return node;
     // Node.DOCUMENT_POSITION_PRECEDING
-  } else if (node.type === 'MemberExpression') {
+  } else if (node?.type === 'MemberExpression') {
     return extractIdentifier(node.object);
     // ...Node
-  } else if (node.type === 'SpreadElement') {
+  } else if (node?.type === 'SpreadElement') {
     return extractIdentifier(node.argument);
   }
 
