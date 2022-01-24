@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+- Enabled the `@typescript-eslint/naming-convention` rule so that it enforces pascal case type names.
+
 ## 2.0.1 - 2021-11-25
 
 ### Fixed
