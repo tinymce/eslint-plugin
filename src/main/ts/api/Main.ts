@@ -8,6 +8,7 @@ import { noMainModuleImports } from '../rules/NoMainModuleImports';
 import { noPathAliasImports } from '../rules/NoPathAliasImports';
 import { noUnimportedPromise } from '../rules/NoUnimportedPromise';
 import { preferFun } from '../rules/PreferFun';
+import { preferMcAgar } from '../rules/PreferMcAgar';
 
 const rules: Record<string, Rule.RuleModule> = {
   'no-direct-imports': noDirectImports,
@@ -16,7 +17,8 @@ const rules: Record<string, Rule.RuleModule> = {
   'no-path-alias-imports': noPathAliasImports,
   'no-unimported-promise': noUnimportedPromise,
   'no-implicit-dom-globals': noImplicitDomGlobals,
-  'prefer-fun': preferFun
+  'prefer-fun': preferFun,
+  'prefer-mcagar': preferMcAgar
 };
 
 const configs: Record<string, Linter.Config> = {

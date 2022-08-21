@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - Enabled the `@typescript-eslint/naming-convention` rule so that it enforces pascal case type names.
+- Added new `@tinymce/prefer-mcagar` rule to detect places where `TinyDom`, `TinyAssertions.assertContent` and `TinyAssertions.assertRawContent` should be used.
 
 ## 2.0.1 - 2021-11-25
 
