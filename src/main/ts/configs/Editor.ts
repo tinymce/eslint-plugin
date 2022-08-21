@@ -7,6 +7,8 @@ export const editor: Linter.Config = {
   rules: {
     ...standard.rules,
 
+    '@tinymce/prefer-mcagar': 'error',
+
     '@typescript-eslint/explicit-module-boundary-types': [ 'error', { allowArgumentsExplicitlyTypedAsAny: true }],
     '@typescript-eslint/comma-dangle': [ 'error', {
       arrays: 'only-multiline',

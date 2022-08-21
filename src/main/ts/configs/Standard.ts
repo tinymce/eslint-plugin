@@ -166,5 +166,6 @@ export const standard: Linter.Config = {
     '@tinymce/no-unimported-promise': 'off',
     '@tinymce/no-implicit-dom-globals': 'error',
     '@tinymce/prefer-fun': 'error',
+    '@tinymce/prefer-mcagar': 'off',
   }
 };
