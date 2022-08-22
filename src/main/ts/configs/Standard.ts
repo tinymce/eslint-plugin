@@ -165,6 +165,7 @@ export const standard: Linter.Config = {
     '@tinymce/no-enums-in-export-specifier': 'error',
     '@tinymce/no-main-module-imports': 'error',
     '@tinymce/no-path-alias-imports': 'error',
+    '@tinymce/no-publicapi-module-imports': 'error',
     '@tinymce/no-unimported-promise': 'off',
     '@tinymce/no-implicit-dom-globals': 'error',
     '@tinymce/prefer-fun': 'error',
