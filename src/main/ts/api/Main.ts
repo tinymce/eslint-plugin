@@ -11,7 +11,8 @@ import { noPathAliasImports } from '../rules/NoPathAliasImports';
 import { noPublicApiModuleImports } from '../rules/NoPublicApiModuleImports';
 import { noUnimportedPromise } from '../rules/NoUnimportedPromise';
 import { preferFun } from '../rules/PreferFun';
-import { preferMcAgar } from '../rules/PreferMcAgar';
+import { preferMcAgarTinyAssertions } from '../rules/PreferMcAgarTinyAssertions';
+import { preferMcAgarTinyDom } from '../rules/PreferMcAgarTinyDom';
 
 const rules: Record<string, Rule.RuleModule> = {
   'no-direct-editor-events': noDirectEditorEvents,
@@ -24,7 +25,8 @@ const rules: Record<string, Rule.RuleModule> = {
   'no-unimported-promise': noUnimportedPromise,
   'no-implicit-dom-globals': noImplicitDomGlobals,
   'prefer-fun': preferFun,
-  'prefer-mcagar': preferMcAgar
+  'prefer-mcagar-tiny-assertions': preferMcAgarTinyAssertions,
+  'prefer-mcagar-tiny-dom': preferMcAgarTinyDom
 };
 
 const configs: Record<string, Linter.Config> = {

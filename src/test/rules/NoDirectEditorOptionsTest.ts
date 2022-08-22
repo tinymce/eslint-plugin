@@ -16,6 +16,11 @@ ruleTester.run('no-direct-editor-options', noDirectEditorOptions, {
       editor.getParam('my_option');
       `
     },
+    // Legacy case
+    {
+      filename: 'src/main/ts/color/Options.ts',
+      code: 'editor.options.get("my_option");'
+    },
     {
       filename: 'src/test/ts/MyTest.ts',
       code: 'editor.options.get("my_option");'
