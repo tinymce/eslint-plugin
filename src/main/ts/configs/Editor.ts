@@ -7,6 +7,7 @@ export const editor: Linter.Config = {
   rules: {
     ...standard.rules,
 
+    '@tinymce/no-direct-editor-events': 'error',
     '@tinymce/no-direct-editor-options': 'error',
     '@tinymce/prefer-mcagar': 'error',
 
