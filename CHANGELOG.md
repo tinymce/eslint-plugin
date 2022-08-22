@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added new `@tinymce/prefer-mcagar` rule to detect places where `TinyDom`, `TinyAssertions.assertContent` and `TinyAssertions.assertRawContent` should be used.
 - Added new `@tinymce/no-direct-editor-events` rule to ensure events are only dispatched inside `api/Events.ts`.
 - Added new `@tinymce/no-direct-editor-options` rule to ensure options are only registered and accessed inside `api/Options.ts`.
+- Added new `@tinymce/no-publicapi-module-imports` rule to detect invalid imports from `PublicApi.ts`.
 
 ## 2.0.1 - 2021-11-25
 
