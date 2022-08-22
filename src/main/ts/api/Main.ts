@@ -1,6 +1,7 @@
 import { Linter, Rule } from 'eslint';
 import { editor } from '../configs/Editor';
 import { standard } from '../configs/Standard';
+import { noDirectEditorOptions } from '../rules/NoDirectEditorOptions';
 import { noDirectImports } from '../rules/NoDirectImports';
 import { noEnumsInExportSpecifier } from '../rules/NoEnumsInExportSpecifier';
 import { noImplicitDomGlobals } from '../rules/NoImplicitDomGlobals';
@@ -11,6 +12,7 @@ import { preferFun } from '../rules/PreferFun';
 import { preferMcAgar } from '../rules/PreferMcAgar';
 
 const rules: Record<string, Rule.RuleModule> = {
+  'no-direct-editor-options': noDirectEditorOptions,
   'no-direct-imports': noDirectImports,
   'no-enums-in-export-specifier': noEnumsInExportSpecifier,
   'no-main-module-imports': noMainModuleImports,
