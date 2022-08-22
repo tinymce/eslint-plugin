@@ -33,6 +33,13 @@ export const base: Linter.Config = {
       singleline: { delimiter: 'semi', requireLast: false }
     }],
     '@typescript-eslint/member-ordering': 'error',
+    '@typescript-eslint/naming-convention': [
+      'error',
+      {
+        selector: 'typeLike',
+        format: [ 'PascalCase' ]
+      }
+    ],
     '@typescript-eslint/no-duplicate-imports': 'error',
     '@typescript-eslint/no-empty-interface': 'off',
     '@typescript-eslint/no-for-in-array': 'error',
