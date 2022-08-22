@@ -1,22 +1,13 @@
 import { Rule } from 'eslint';
-import { CallExpression, MemberExpression, Property } from 'estree';
-import { extractIdentifier } from '../utils/ExtractUtils';
+import { CallExpression, Property } from 'estree';
+import { isEditorFunction } from '../utils/EditorUtils';
+import { extractIdentifier, extractMemberIdentifiers } from '../utils/ExtractUtils';
 import { isPathInTest } from '../utils/PathUtils';
 
 const enum Option {
   TinyAssertions = 'tinyAssertions',
   TinyDom = 'tinyDom'
 }
-
-const extractCallIdentifiers = (member: MemberExpression) => {
-  const object = member.object.type === 'Identifier' ? member.object : null;
-  const property = member.property.type === 'Identifier' ? member.property : null;
-
-  return {
-    object,
-    property
-  };
-};
 
 const createGetContentAssertFixer = (context: Rule.RuleContext, node: CallExpression, raw: boolean) => (fixer: Rule.RuleFixer): Rule.Fix => {
   const sourceCode = context.getSourceCode();
@@ -43,16 +34,6 @@ const createTinyDomFixer = (node: CallExpression, type: string) => (fixer: Rule.
   const editorApiCall = node.arguments[0] as CallExpression;
   const editorVar = extractIdentifier(editorApiCall.callee)?.name as string;
   return fixer.replaceText(node, `TinyDom.${type}(${editorVar})`);
-};
-
-const isEditorFunction = (node: CallExpression, name: string) => {
-  const callee = node.callee;
-  if (callee.type === 'MemberExpression') {
-    const { object, property } = extractCallIdentifiers(callee);
-    return (object?.name === 'ed' || object?.name === 'editor') && property?.name === name;
-  }
-
-  return false;
 };
 
 const isGetContentCall = (node: CallExpression, raw: boolean = false) => {
@@ -90,7 +71,7 @@ const isGetContentCall = (node: CallExpression, raw: boolean = false) => {
 const isContentAssertion = (node: CallExpression, raw: boolean = false) => {
   const callee = node.callee;
   if (callee.type === 'MemberExpression' && node.arguments.length <= 2) {
-    const { object, property } = extractCallIdentifiers(callee);
+    const [ object, property ] = extractMemberIdentifiers(callee);
     if (object?.name === 'assert' && (property?.name === 'equal' || property?.name === 'deepEqual')) {
       const firstArgument = node.arguments[0];
       if (firstArgument.type === 'CallExpression' && isGetContentCall(firstArgument, raw)) {
@@ -105,7 +86,7 @@ const isContentAssertion = (node: CallExpression, raw: boolean = false) => {
 const extractTinyDomCall = (node: CallExpression) => {
   const callee = node.callee;
   if (callee.type === 'MemberExpression' && node.arguments.length === 1) {
-    const { object, property } = extractCallIdentifiers(callee);
+    const [ object, property ] = extractMemberIdentifiers(callee);
     if (object?.name === 'SugarElement' && property?.name === 'fromDom') {
       const firstArg = node.arguments[0];
       if (firstArg.type === 'CallExpression') {

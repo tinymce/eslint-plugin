@@ -159,6 +159,7 @@ export const standard: Linter.Config = {
   ],
   rules: {
     ...base.rules,
+    '@tinymce/no-direct-editor-options': 'off',
     '@tinymce/no-direct-imports': 'error',
     '@tinymce/no-enums-in-export-specifier': 'error',
     '@tinymce/no-main-module-imports': 'error',

@@ -1,4 +1,4 @@
-import { Expression, Identifier, Node, Pattern, PrivateIdentifier, SpreadElement, Super } from 'estree';
+import { Expression, Identifier, MemberExpression, Node, Pattern, PrivateIdentifier, SpreadElement, Super } from 'estree';
 
 export const extractModuleSpecifier = (node: Node) => {
   if (node.type === 'ImportDeclaration') {
@@ -23,4 +23,22 @@ export const extractIdentifier = (node: Expression | PrivateIdentifier | Super |
   }
 
   return null;
+};
+
+export const extractMemberIdentifiers = (member: MemberExpression): Identifier[] => {
+  const identifiers = [];
+
+  // Expand left-hand side
+  if (member.object.type === 'Identifier') {
+    identifiers.push(member.object);
+  } else if (member.object.type === 'MemberExpression') {
+    identifiers.push(...extractMemberIdentifiers(member.object));
+  }
+
+  // Expand right-hand side
+  if (member.property.type === 'Identifier') {
+    identifiers.push(member.property);
+  }
+
+  return identifiers;
 };
