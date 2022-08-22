@@ -9,7 +9,8 @@ export const editor: Linter.Config = {
 
     '@tinymce/no-direct-editor-events': 'error',
     '@tinymce/no-direct-editor-options': 'error',
-    '@tinymce/prefer-mcagar': 'error',
+    '@tinymce/prefer-mcagar-tiny-assertions': 'error',
+    '@tinymce/prefer-mcagar-tiny-dom': 'error',
 
     '@typescript-eslint/explicit-module-boundary-types': [ 'error', { allowArgumentsExplicitlyTypedAsAny: true }],
     '@typescript-eslint/comma-dangle': [ 'error', {

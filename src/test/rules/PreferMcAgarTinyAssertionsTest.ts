@@ -1,12 +1,12 @@
 import { RuleTester } from 'eslint';
-import { preferMcAgar } from '../../main/ts/rules/PreferMcAgar';
+import { preferMcAgarTinyAssertions } from '../../main/ts/rules/PreferMcAgarTinyAssertions';
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
   parserOptions: { sourceType: 'module' }
 });
 
-ruleTester.run('prefer-mcagar', preferMcAgar, {
+ruleTester.run('prefer-mcagar-tiny-assertions', preferMcAgarTinyAssertions, {
   valid: [
     {
       filename: 'src/test/ts/MyTest.ts',
@@ -14,6 +14,7 @@ ruleTester.run('prefer-mcagar', preferMcAgar, {
       import { TinyAssertions } from '@ephox/mcagar';
       TinyAssertions.assertContent(editor, '<p></p>');
       TinyAssertions.assertContent(editor, '<p></p>', { no_events: true });
+      TinyAssertions.assertRawContent(editor, '<p><br></p>');
       `
     },
     {
@@ -22,18 +23,8 @@ ruleTester.run('prefer-mcagar', preferMcAgar, {
       import assert from 'chai';
       assert.equal(editor.getContent({ format: 'tree' }), expectedTree);
       assert.equal(editor.getContent({ format: 'text' }), 'plain text');
+      assert.equal(editor.getContent({ format: 'raw', no_events: true }), '<p><br></p>');
       assert.equal(editor.selection.getContent(), 'a');
-      `
-    },
-    {
-      filename: 'src/test/ts/MyTest.ts',
-      code: `
-      import { TinyDom } from '@ephox/mcagar';
-      const doc = TinyDom.document(editor);
-      const body = TinyDom.body(editor);
-      const container = TinyDom.container(editor);
-      const contentArea = TinyDom.contentAreaContainer(editor);
-      const target = TinyDom.targetElement(editor);
       `
     }
   ],
@@ -100,10 +91,10 @@ ruleTester.run('prefer-mcagar', preferMcAgar, {
       filename: 'src/test/ts/MyTest.ts',
       code: `
       import assert from 'chai';
-      assert.equal(ed.getContent({ format: 'raw' }), '<p></p>');
-      assert.equal(editor.getContent({ format: 'raw' }), '<p></p>');
-      assert.deepEqual(editor.getContent({ format: 'raw' }), '<p></p>');
-      assert.equal(editor.getContent({ format: 'raw', no_events: true }), '<p></p>');
+      assert.equal(ed.getContent({ format: 'raw' }), '<p><br></p>');
+      assert.equal(editor.getContent({ format: 'raw' }), '<p><br></p>');
+      assert.deepEqual(editor.getContent({ format: 'raw' }), '<p><br></p>');
+      assert.equal(editor.getBody().innerHTML, '<p><br></p>');
       `,
       errors: [
         { message: 'Use `TinyAssertions.assertRawContent` instead of manually asserting the raw content.' },
@@ -114,37 +105,10 @@ ruleTester.run('prefer-mcagar', preferMcAgar, {
       // Note: The fixer doesn't touch imports
       output: `
       import assert from 'chai';
-      TinyAssertions.assertRawContent(ed, '<p></p>');
-      TinyAssertions.assertRawContent(editor, '<p></p>');
-      TinyAssertions.assertRawContent(editor, '<p></p>');
-      TinyAssertions.assertRawContent(editor, '<p></p>', { no_events: true });
-      `
-    },
-    {
-      filename: 'src/test/ts/MyTest.ts',
-      code: `
-      import { SugarElement } from '@ephox/sugar';
-      const doc = SugarElement.fromDom(editor.getDoc());
-      const body = SugarElement.fromDom(editor.getBody());
-      const container = SugarElement.fromDom(editor.getContainer());
-      const contentArea = SugarElement.fromDom(editor.getContentAreaContainer());
-      const target = SugarElement.fromDom(editor.getElement());
-      `,
-      errors: [
-        { message: 'Use `TinyDom.document` instead of manually converting the editor document to a Sugar element.' },
-        { message: 'Use `TinyDom.body` instead of manually converting the editor body to a Sugar element.' },
-        { message: 'Use `TinyDom.container` instead of manually converting the editor container to a Sugar element.' },
-        { message: 'Use `TinyDom.contentAreaContainer` instead of manually converting the editor content area container to a Sugar element.' },
-        { message: 'Use `TinyDom.targetElement` instead of manually converting the editor target element to a Sugar element.' }
-      ],
-      // Note: The fixer doesn't touch imports
-      output: `
-      import { SugarElement } from '@ephox/sugar';
-      const doc = TinyDom.document(editor);
-      const body = TinyDom.body(editor);
-      const container = TinyDom.container(editor);
-      const contentArea = TinyDom.contentAreaContainer(editor);
-      const target = TinyDom.targetElement(editor);
+      TinyAssertions.assertRawContent(ed, '<p><br></p>');
+      TinyAssertions.assertRawContent(editor, '<p><br></p>');
+      TinyAssertions.assertRawContent(editor, '<p><br></p>');
+      TinyAssertions.assertRawContent(editor, '<p><br></p>');
       `
     }
   ]

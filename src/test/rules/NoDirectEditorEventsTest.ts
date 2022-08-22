@@ -16,6 +16,11 @@ ruleTester.run('no-direct-editor-events', noDirectEditorEvents, {
       editor.fire('myevent', { value: 'custom' });
       `
     },
+    // Legacy case
+    {
+      filename: 'src/main/ts/alien/Events.ts',
+      code: 'editor.dispatch(\'mytestevent\', { value: \'test\' });'
+    },
     {
       filename: 'src/test/ts/MyTest.ts',
       code: 'editor.dispatch(\'mytestevent\', { value: \'test\' });'
