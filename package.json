@@ -17,7 +17,7 @@
     "typescript": "^4.0.0"
   },
   "devDependencies": {
-    "@tinymce/beehive-flow": "^0.17.0",
+    "@tinymce/beehive-flow": "^0.18.0",
     "@types/eslint": "^8.2.0",
     "@types/estree": "^0.0.50",
     "@types/node": "^16.11.10",
