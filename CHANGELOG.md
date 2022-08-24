@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-## 2.2.0 - 2022-08-26
+## 2.2.0 - 2022-08-25
 
 ### Added
 - Enabled the `@typescript-eslint/func-call-spacing`, `computed-property-spacing`, `no-whitespace-before-property`, `rest-spread-spacing`, `semi-spacing` and `switch-colon-spacing` spacing rules by default.
