@@ -141,6 +141,7 @@ export const base: Linter.Config = {
     'semi-spacing': 'error',
     'spaced-comment': 'error',
     'space-unary-ops': 'error',
+    'switch-colon-spacing': 'error',
     'template-curly-spacing': 'error',
     'use-isnan': 'error',
     'valid-typeof': 'off',  // Disabled as it's handled by TypeScript

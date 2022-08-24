@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## 2.2.0 - 2022-08-26
 
 ### Added
-- Enabled the `@typescript-eslint/func-call-spacing`, `computed-property-spacing`, `no-whitespace-before-property`, `rest-spread-spacing` and `semi-spacing` spacing rules by default.
+- Enabled the `@typescript-eslint/func-call-spacing`, `computed-property-spacing`, `no-whitespace-before-property`, `rest-spread-spacing`, `semi-spacing` and `switch-colon-spacing` spacing rules by default.
 
 ### Improved
 - Swapped to the `@typescript-eslint/brace-style`, `@typescript-eslint/object-curly-spacing` and `@typescript-eslint/space-before-blocks` rule variants to detect issues in interfaces and types.
