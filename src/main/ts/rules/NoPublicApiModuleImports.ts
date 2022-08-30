@@ -1,6 +1,6 @@
 import { Rule } from 'eslint';
 import { isInternalPathAlias, isPublicApiImport } from '../utils/ImportUtils';
-import { isPathInDemo, isPathInMain } from '../utils/PathUtils';
+import { isPathInDemo, isPathInMain, normalizeFilePath } from '../utils/PathUtils';
 import { extractModuleSpecifier } from '../utils/ExtractUtils';
 
 const mainPathValidator = isPublicApiImport;
@@ -18,7 +18,7 @@ export const noPublicApiModuleImports: Rule.RuleModule = {
     }
   },
   create: (context) => {
-    const filename = context.getFilename();
+    const filename = normalizeFilePath(context.getFilename());
     // Demo files are the sole location we want to allow
     if (isPathInDemo(filename)) {
       return {};
