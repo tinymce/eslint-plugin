@@ -18,7 +18,7 @@ export const noDirectEditorOptions: Rule.RuleModule = {
     const filename = context.getFilename();
     // Ignore in tests, demos or Options.ts
     // NOTE: To allow for some legacy setups we currently only enforce `Options.ts` instead of `api/Options.ts`
-    if (isPathInTest(filename) || isPathInDemo(filename) || filename.endsWith('/Options.ts')) {
+    if (isPathInTest(filename) || isPathInDemo(filename) || filename.match(/[\/\\]Options\.ts$/)) {
       return {};
     } else {
       return {

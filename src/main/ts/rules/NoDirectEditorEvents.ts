@@ -17,7 +17,7 @@ export const noDirectEditorEvents: Rule.RuleModule = {
     const filename = context.getFilename();
     // Ignore in tests, demos or Events.ts
     // NOTE: To allow for some legacy setups we currently only enforce `Events.ts` instead of `api/Events.ts`
-    if (isPathInTest(filename) || isPathInDemo(filename) || filename.endsWith('/Events.ts')) {
+    if (isPathInTest(filename) || isPathInDemo(filename) || filename.match(/[\/\\]Events\.ts$/)) {
       return {};
     } else {
       return {

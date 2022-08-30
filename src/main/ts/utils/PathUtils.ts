@@ -1,8 +1,18 @@
-export const isPathInMain = (filePath: string) =>
-  filePath.startsWith('src/main/') || filePath.includes('/src/main/') || filePath.includes('/src/core/main/');
+// Replace `\` with `/` to handle Windows paths
+const normalizeFilePath = (filePath: string) =>
+  filePath.replace(/\\/g, '/');
 
-export const isPathInTest = (filePath: string) =>
-  filePath.startsWith('src/test/') || filePath.includes('/src/test/') || (/src\/[\w\/]+\/test\//).test(filePath);
+export const isPathInMain = (filePath: string) => {
+  const normalizedPath = normalizeFilePath(filePath);
+  return normalizedPath.startsWith('src/main/') || normalizedPath.includes('/src/main/') || normalizedPath.includes('/src/core/main/');
+};
 
-export const isPathInDemo = (filePath: string) =>
-  filePath.startsWith('src/demo/') || filePath.includes('/src/demo/') || (/src\/[\w\/]+\/demo\//).test(filePath);
+export const isPathInTest = (filePath: string) => {
+  const normalizedPath = normalizeFilePath(filePath);
+  return normalizedPath.startsWith('src/test/') || normalizedPath.includes('/src/test/') || (/src\/[\w\/]+\/test\//).test(normalizedPath);
+};
+
+export const isPathInDemo = (filePath: string) => {
+  const normalizedPath = normalizeFilePath(filePath);
+  return normalizedPath.startsWith('src/demo/') || normalizedPath.includes('/src/demo/') || (/src\/[\w\/]+\/demo\//).test(normalizedPath);
+};
