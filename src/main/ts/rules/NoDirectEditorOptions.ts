@@ -1,7 +1,7 @@
 import { Rule } from 'eslint';
 import { isEditorMemberExpression } from '../utils/EditorUtils';
 import { extractMemberIdentifiers } from '../utils/ExtractUtils';
-import { isPathInDemo, isPathInTest } from '../utils/PathUtils';
+import { isPathInDemo, isPathInTest, normalizeFilePath } from '../utils/PathUtils';
 
 export const noDirectEditorOptions: Rule.RuleModule = {
   meta: {
@@ -15,7 +15,7 @@ export const noDirectEditorOptions: Rule.RuleModule = {
     }
   },
   create: (context) => {
-    const filename = context.getFilename();
+    const filename = normalizeFilePath(context.getFilename());
     // Ignore in tests, demos or Options.ts
     // NOTE: To allow for some legacy setups we currently only enforce `Options.ts` instead of `api/Options.ts`
     if (isPathInTest(filename) || isPathInDemo(filename) || filename.endsWith('/Options.ts')) {

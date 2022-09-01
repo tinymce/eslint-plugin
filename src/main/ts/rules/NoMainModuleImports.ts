@@ -1,6 +1,6 @@
 import { Rule } from 'eslint';
 import { isInternalPathAlias, isMainImport } from '../utils/ImportUtils';
-import { isPathInMain } from '../utils/PathUtils';
+import { isPathInMain, normalizeFilePath } from '../utils/PathUtils';
 import { extractModuleSpecifier } from '../utils/ExtractUtils';
 
 const mainPathValidator = isMainImport;
@@ -18,7 +18,7 @@ export const noMainModuleImports: Rule.RuleModule = {
     }
   },
   create: (context) => {
-    const filename = context.getFilename();
+    const filename = normalizeFilePath(context.getFilename());
     const validator = isPathInMain(filename) ? mainPathValidator : genericPathValidator;
     return {
       ImportDeclaration: (node) => {
