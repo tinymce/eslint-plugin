@@ -681,7 +681,7 @@
   dependencies:
     "@babel/types" "^7.3.0"
 
-"@types/eslint@^8.2.0":
+"@types/eslint@^8.37.0":
   version "8.37.0"
   resolved "https://registry.yarnpkg.com/@types/eslint/-/eslint-8.37.0.tgz#29cebc6c2a3ac7fea7113207bf5a828fdf4d7ef1"
   integrity sha512-Piet7dG2JBuDIfohBngQ3rCt7MgO9xCO4xIMKxBThCq5PNRB91IjlJ10eJVwfoNtvTErmxLzwBZ7rHZtbOMmFQ==
