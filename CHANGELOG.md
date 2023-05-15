@@ -1,10 +1,13 @@
 # Changelog
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## 2.3.0 - 2023-05-15
 
 ### Changed
 - Upgraded ESLint dependencies. #TINY-9845
@@ -99,7 +102,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## 1.5.2 - 2020-12-08
 
 ### Fixed
-- Some dom-globals weren't flagged as invalid when using the `@tinymce/no-implicit-dom-globals` rule. 
+- Some dom-globals weren't flagged as invalid when using the `@tinymce/no-implicit-dom-globals` rule.
 
 ## 1.5.0 - 2020-10-01
 
@@ -109,17 +112,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## 1.4.0 - 2020-07-27
 
 ### Added
-
 - Added new `@tinymce/no-implicit-dom-globals` rule to prevent dom global variables being used implicitly.
 
 ## 1.3.0 - 2020-07-23
 
 ### Added
-
 - Added the `@typescript-eslint/keyword-spacing`, `comma-spacing`, `no-multi-spaces`, `space-infix-ops` and `space-unary-ops` rules to the default ruleset.
 
 ### Fixed
-
 - Fixed the `@tinymce/no-unimported-promise` incorrectly detecting local variables.
 - Fixed the `@tinymce/no-enums-in-export-specifier` detecting built-in object properties.
 
