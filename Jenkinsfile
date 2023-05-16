@@ -2,5 +2,5 @@
 @Library('waluigi@release/7') _
 
 beehiveFlowBuild([
-  container: [ resourceRequestMemory: '2Gi', resourceLimitMemory: '2Gi' ]
+  container: [ resourceRequestMemory: '4Gi', resourceLimitMemory: '4Gi' ]
 ])
