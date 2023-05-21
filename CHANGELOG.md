@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 2.3.1 - 2023-05-21
+
 ### Fixed
 - Downgraded eslint-plugin-import to remove a regression behaviour with parent and sibling imports. #TINY-9845
 
