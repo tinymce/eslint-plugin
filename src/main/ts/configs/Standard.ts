@@ -60,6 +60,7 @@ export const base: Linter.Config = {
     '@typescript-eslint/prefer-for-of': 'error',
     '@typescript-eslint/prefer-function-type': 'error',
     '@typescript-eslint/quotes': [ 'error', 'single', { allowTemplateLiterals: true }],
+    '@typescript-eslint/require-await': 'off',
     '@typescript-eslint/restrict-plus-operands': 'off',
     '@typescript-eslint/restrict-template-expressions': 'off',
     '@typescript-eslint/semi': [ 'error', 'always' ],
