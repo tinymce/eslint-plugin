@@ -1,10 +1,21 @@
-import { RuleTester } from 'eslint';
+// import { RuleTester } from 'eslint';
 import { noEnumsInExportSpecifier } from '../../main/ts/rules/NoEnumsInExportSpecifier';
+import * as RuleTester from './RuleTester';
 
-const ruleTester = new RuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
-  parserOptions: { sourceType: 'module' }
-});
+const ruleTester = RuleTester.setup();
+
+// const ruleTester = new RuleTester({
+//   parser: require.resolve('@typescript-eslint/parser'),
+//   parserOptions: { sourceType: 'module' }
+// });
+
+// const ruleTester = new RuleTester({
+//   language: '@typescript-eslint/parser',
+//   languageOptions: {
+//     ecmaVersion: 5,
+//     sourceType: "module"
+//   }
+// });
 
 ruleTester.run('no-enums-in-export-specifier', noEnumsInExportSpecifier, {
   valid: [

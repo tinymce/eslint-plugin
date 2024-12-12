@@ -1,5 +1,6 @@
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/typescript-estree';
+import { Identifier } from 'estree';
 
 export const noEnumsInExportSpecifier: Rule.RuleModule = {
   meta: {
@@ -20,7 +21,7 @@ export const noEnumsInExportSpecifier: Rule.RuleModule = {
       },
       ExportSpecifier: (node) => {
         if (node.type === 'ExportSpecifier') {
-          const name = node.local.name;
+          const name = (node.local as Identifier).name;
           if (enumNames.hasOwnProperty(name) && enumNames[name]) {
             context.report({ node, messageId: 'noEnumsInExportSpecifier' });
           }

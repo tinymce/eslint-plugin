@@ -1,10 +1,26 @@
-import { RuleTester } from 'eslint';
+// import { RuleTester } from 'eslint';
+// import { RuleTester } from '@typescript-eslint/rule-tester';
 import { noDirectEditorEvents } from '../../main/ts/rules/NoDirectEditorEvents';
 
-const ruleTester = new RuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
-  parserOptions: { sourceType: 'module' }
-});
+import * as RuleTester from './RuleTester';
+
+const ruleTester = RuleTester.setup();
+
+// import * as typescriptParser from '@typescript-eslint/parser';
+
+// const ruleTester = new RuleTester({
+//   languageOptions: {
+//     parser: typescriptParser,
+//     ecmaVersion: 5,
+//     sourceType: "module"
+//   }
+// });
+
+// const ruleTester = new RuleTester({
+//   languageOptions: {
+//     sourceType: 'module'
+//   }
+//  });
 
 ruleTester.run('no-direct-editor-events', noDirectEditorEvents, {
   valid: [

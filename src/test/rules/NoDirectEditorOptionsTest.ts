@@ -1,10 +1,23 @@
-import { RuleTester } from 'eslint';
+// import { RuleTester } from 'eslint';
 import { noDirectEditorOptions } from '../../main/ts/rules/NoDirectEditorOptions';
 
-const ruleTester = new RuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
-  parserOptions: { sourceType: 'module' }
-});
+// const ruleTester = new RuleTester({
+//   parser: require.resolve('@typescript-eslint/parser'),
+//   parserOptions: { sourceType: 'module' }
+// });
+
+import * as RuleTester from './RuleTester';
+
+const ruleTester = RuleTester.setup();
+
+// const ruleTester = new RuleTester({
+//   language: '@typescript-eslint/parser',
+//   languageOptions: {
+//     parser:
+//     ecmaVersion: 5,
+//     sourceType: "module"
+//   }
+// });
 
 ruleTester.run('no-direct-editor-options', noDirectEditorOptions, {
   valid: [
