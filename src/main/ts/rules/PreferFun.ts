@@ -83,8 +83,8 @@ const isIdentity = (func: FuncExpression, expr: Expression) => {
 };
 
 const hasTypeParameters = (func: FuncExpression): boolean => {
-  const tsFunc = func as TSESTree.CallExpression | TSESTree.ArrowFunctionExpression | TSESTree.FunctionExpression;
-  const params = tsFunc.typeParameters;
+  const params = (func as TSESTree.ArrowFunctionExpression | TSESTree.FunctionExpression).typeParameters;
+  // const params = (func as TSESTree.ArrowFunctionExpression | TSESTree.FunctionExpression).typeParameters || (func as TSESTree.CallExpression).typeArguments;
   if (params !== undefined && params.type === 'TSTypeParameterDeclaration') {
     return params.params.length > 0;
   } else {

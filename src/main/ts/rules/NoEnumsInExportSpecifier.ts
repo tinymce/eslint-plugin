@@ -20,8 +20,8 @@ export const noEnumsInExportSpecifier: Rule.RuleModule = {
       },
       ExportSpecifier: (node) => {
         if (node.type === 'ExportSpecifier') {
-          const name = node.local.name;
-          if (enumNames.hasOwnProperty(name) && enumNames[name]) {
+          const name = node.local.type === 'Identifier' ? node.local.name : undefined;
+          if (name && enumNames.hasOwnProperty(name) && enumNames[name]) {
             context.report({ node, messageId: 'noEnumsInExportSpecifier' });
           }
         }
