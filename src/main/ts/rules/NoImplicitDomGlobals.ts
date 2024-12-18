@@ -49,7 +49,7 @@ const defaultExceptions = [
 ];
 
 const getAllowedGlobals = (options: Partial<Options>): string[] => {
-  const allowedGlobals = options.allowed || [];
+  const allowedGlobals = options.allowed ?? [];
   if (options.appendDefaults) {
     return allowedGlobals.concat(defaultExceptions);
   } else {

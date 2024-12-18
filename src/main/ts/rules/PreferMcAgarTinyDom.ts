@@ -4,10 +4,10 @@ import { isEditorFunction } from '../utils/EditorUtils';
 import { extractIdentifier, extractMemberIdentifiers } from '../utils/ExtractUtils';
 import { isPathInTest } from '../utils/PathUtils';
 
-const createTinyDomFixer = (node: CallExpression, type: string) => (fixer: Rule.RuleFixer): Rule.Fix => {
+const createTinyDomFixer = (node: CallExpression, type: string): Rule.ReportFixer => (fixer) => {
   const editorApiCall = node.arguments[0] as CallExpression;
-  const editorVar = extractIdentifier(editorApiCall.callee)?.name as string;
-  return fixer.replaceText(node, `TinyDom.${type}(${editorVar})`);
+  const editorVar = extractIdentifier(editorApiCall.callee)?.name;
+  return editorVar ? fixer.replaceText(node, `TinyDom.${type}(${editorVar})`) : null;
 };
 
 const extractTinyDomCall = (node: CallExpression) => {
@@ -52,7 +52,7 @@ export const preferMcAgarTinyDom: Rule.RuleModule = {
     fixable: 'code'
   },
   create: (context) => {
-    const report = (func: CallExpression, messageId: string, fix?: (fixer: Rule.RuleFixer) => Rule.Fix) => {
+    const report = (func: CallExpression, messageId: string, fix?: Rule.ReportFixer) => {
       context.report({
         node: func,
         messageId,

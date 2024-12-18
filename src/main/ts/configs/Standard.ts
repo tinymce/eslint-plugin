@@ -2,11 +2,13 @@ import { Linter } from 'eslint';
 
 export const base: Linter.Config = {
   extends: [
-    'plugin:@typescript-eslint/recommended',
-    'plugin:@typescript-eslint/recommended-requiring-type-checking'
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended-type-checked',
+    'plugin:@typescript-eslint/stylistic-type-checked'
   ],
   plugins: [
     '@typescript-eslint',
+    '@stylistic',
     'import',
     'mocha',
     'prefer-arrow',
@@ -15,25 +17,9 @@ export const base: Linter.Config = {
     '@typescript-eslint/array-type': 'off',
     '@typescript-eslint/await-thenable': 'error',
     '@typescript-eslint/ban-ts-comment': 'error',
-    '@typescript-eslint/ban-types': 'off',
-    '@typescript-eslint/brace-style': 'error',
-    '@typescript-eslint/comma-spacing': 'error',
-    '@typescript-eslint/consistent-type-assertions': 'error',
-    '@typescript-eslint/consistent-type-definitions': 'error',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-member-accessibility': [ 'error', { accessibility: 'explicit' }],
     '@typescript-eslint/explicit-module-boundary-types': 'off',
-    '@typescript-eslint/func-call-spacing': 'error',
-    '@typescript-eslint/indent': [ 'error', 2, {
-      FunctionDeclaration: { parameters: 'first' },
-      FunctionExpression: { parameters: 'first' },
-      SwitchCase: 1
-    }],
-    '@typescript-eslint/keyword-spacing': 'error',
-    '@typescript-eslint/member-delimiter-style': [ 'error', {
-      multiline: { delimiter: 'semi', requireLast: true },
-      singleline: { delimiter: 'semi', requireLast: false }
-    }],
     '@typescript-eslint/member-ordering': 'error',
     '@typescript-eslint/naming-convention': [
       'error',
@@ -42,13 +28,12 @@ export const base: Linter.Config = {
         format: [ 'PascalCase' ]
       }
     ],
-    '@typescript-eslint/no-duplicate-imports': 'error',
     '@typescript-eslint/no-empty-interface': 'off',
     '@typescript-eslint/no-for-in-array': 'error',
     '@typescript-eslint/no-implied-eval': 'error',
     '@typescript-eslint/no-inferrable-types': [ 'error', { ignoreParameters: true, ignoreProperties: true }],
     '@typescript-eslint/no-namespace': 'error',
-    '@typescript-eslint/no-parameter-properties': 'error',
+    '@typescript-eslint/parameter-properties': 'error',
     '@typescript-eslint/no-shadow': [ 'error', { hoist: 'all' }],
     '@typescript-eslint/no-unused-vars': [ 'warn', {
       vars: 'all',
@@ -56,24 +41,13 @@ export const base: Linter.Config = {
       ignoreRestSiblings: true,
       argsIgnorePattern: '^_'
     }],
-    '@typescript-eslint/object-curly-spacing': [ 'error', 'always', { objectsInObjects: false }],
     '@typescript-eslint/prefer-for-of': 'error',
     '@typescript-eslint/prefer-function-type': 'error',
-    '@typescript-eslint/quotes': [ 'error', 'single', { allowTemplateLiterals: true }],
     '@typescript-eslint/require-await': 'off',
     '@typescript-eslint/restrict-plus-operands': 'off',
     '@typescript-eslint/restrict-template-expressions': 'off',
-    '@typescript-eslint/semi': [ 'error', 'always' ],
-    '@typescript-eslint/space-before-blocks': 'error',
-    '@typescript-eslint/space-before-function-paren': [ 'error', { anonymous: 'always', named: 'never' }],
-    '@typescript-eslint/space-infix-ops': 'error',
     '@typescript-eslint/switch-exhaustiveness-check': 'error',
-    '@typescript-eslint/type-annotation-spacing': 'error',
     '@typescript-eslint/unified-signatures': 'error',
-
-    // TODO: Enable once we no longer support IE 11
-    '@typescript-eslint/prefer-includes': 'off',
-    '@typescript-eslint/prefer-string-starts-ends-with': 'off',
 
     // TODO: Investigate if these rules should be enabled
     '@typescript-eslint/no-floating-promises': 'off',
@@ -104,7 +78,6 @@ export const base: Linter.Config = {
     'guard-for-in': 'error',
     'id-blacklist': 'error',
     'id-match': 'error',
-    'import/order': 'off',
     'key-spacing': [ 'error', { beforeColon: false, afterColon: true, mode: 'strict' }],
     'max-classes-per-file': [ 'error', 1 ],
     'max-len': [ 'warn', 160 ],
@@ -145,27 +118,37 @@ export const base: Linter.Config = {
     'switch-colon-spacing': 'error',
     'template-curly-spacing': 'error',
     'use-isnan': 'error',
-    'valid-typeof': 'off',  // Disabled as it's handled by TypeScript
 
-    // Disabled since we're using the equivalent typescript-eslint rule
-    'brace-style': 'off',
-    'comma-spacing': 'off',
-    'func-call-spacing': 'off',
-    'indent': 'off',
-    'keyword-spacing': 'off',
-    'no-duplicate-imports': 'off',
-    'no-shadow': 'off',
-    'object-curly-spacing': 'off',
-    'space-before-blocks': 'off',
-    'space-before-function-paren': 'off',
-    'space-infix-ops': 'off',
+    '@stylistic/brace-style': 'error',
+    '@stylistic/comma-spacing': 'error',
+    '@stylistic/func-call-spacing': 'error',
+    '@stylistic/indent': [ 'error', 2, {
+      FunctionDeclaration: { parameters: 'first' },
+      FunctionExpression: { parameters: 'first' },
+      SwitchCase: 1
+    }],
+    '@stylistic/keyword-spacing': 'error',
+    '@stylistic/member-delimiter-style': [ 'error', {
+      multiline: { delimiter: 'semi', requireLast: true },
+      singleline: { delimiter: 'semi', requireLast: false }
+    }],
+    '@stylistic/semi': [ 'error', 'always' ],
+    '@stylistic/space-before-blocks': 'error',
+    '@stylistic/space-before-function-paren': [ 'error', { anonymous: 'always', named: 'never' }],
+    '@stylistic/space-infix-ops': 'error',
+    '@stylistic/object-curly-spacing': [ 'error', 'always', { objectsInObjects: false }],
+    '@stylistic/quotes': [ 'error', 'single', { allowTemplateLiterals: true }],
+    '@stylistic/type-annotation-spacing': 'error',
+
+    'import/order': 'off',
+    'import/no-duplicates': 'error',
   }
 };
 
 export const standard: Linter.Config = {
   extends: base.extends,
   plugins: [
-    ...(base.plugins as string[]),
+    ...(base.plugins!),
     '@tinymce', // means @tinymce/eslint-plugin (see https://eslint.org/docs/user-guide/configuring#naming-convention )
   ],
   rules: {

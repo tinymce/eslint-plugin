@@ -15,6 +15,7 @@ const getVariableExportList = (ast: ts.SourceFile) => {
   };
 
   ts.forEachChild(ast, (node) => {
+    // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
     switch (node.kind) {
       case ts.SyntaxKind.FunctionDeclaration:
       case ts.SyntaxKind.MethodDeclaration:
@@ -22,12 +23,13 @@ const getVariableExportList = (ast: ts.SourceFile) => {
         addVariable(node);
         break;
 
-      case ts.SyntaxKind.VariableStatement:
+      case ts.SyntaxKind.VariableStatement: {
         const statement = node as ts.VariableStatement;
         statement.declarationList.declarations.forEach((decl) => {
           addVariable(decl);
         });
         break;
+      }
       default:
         break;
     }
@@ -36,7 +38,7 @@ const getVariableExportList = (ast: ts.SourceFile) => {
 };
 
 export const getDomGlobals = (): string[] => {
-  if (!globalsCache.hasOwnProperty('dom')) {
+  if (!Object.prototype.hasOwnProperty.call(globalsCache, 'dom')) {
     // Resolve the path to the TS dom library types
     const resolved = resolve.sync('typescript');
     const domLib = path.join(path.dirname(resolved), 'lib.dom.d.ts');

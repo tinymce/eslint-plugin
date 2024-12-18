@@ -84,8 +84,7 @@ const isIdentity = (func: FuncExpression, expr: Expression) => {
 
 const hasTypeParameters = (func: FuncExpression): boolean => {
   const params = (func as TSESTree.ArrowFunctionExpression | TSESTree.FunctionExpression).typeParameters;
-  // const params = (func as TSESTree.ArrowFunctionExpression | TSESTree.FunctionExpression).typeParameters || (func as TSESTree.CallExpression).typeArguments;
-  if (params !== undefined && params.type === 'TSTypeParameterDeclaration') {
+  if (params?.type === TSESTree.AST_NODE_TYPES.TSTypeParameterDeclaration) {
     return params.params.length > 0;
   } else {
     return false;

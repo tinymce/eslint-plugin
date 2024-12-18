@@ -16,7 +16,7 @@ assert\.(?:equal|deepEqual)\(
   (\s+[^\)]+?)(\s*)
 \)
  */
-const assertContentRegex = /assert\.(?:equal|deepEqual)\((\s*)(ed|editor)\.(?:getContent\(([^)]*)\)|getBody\(\)\.innerHTML),(\s+[^\)]+?)(\s*)\)/;
+const assertContentRegex = /assert\.(?:equal|deepEqual)\((\s*)(ed|editor)\.(?:getContent\(([^)]*)\)|getBody\(\)\.innerHTML),(\s+[^)]+?)(\s*)\)/;
 
 const createGetContentAssertFixer = (context: Rule.RuleContext, node: CallExpression, raw: boolean) => (fixer: Rule.RuleFixer): Rule.Fix => {
   const sourceCode = context.getSourceCode();
