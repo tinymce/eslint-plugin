@@ -67,7 +67,7 @@ export const noImplicitDomGlobals: Rule.RuleModule = {
     type: 'problem',
     docs: {
       description: 'Disallows implicit dom global variables from being used without being accessed via the global window object. ' +
-                   'A number of common ones are allowed by default however, such as window and document.'
+        'A number of common ones are allowed by default however, such as window and document.'
     },
     messages: {
       noImplicitDomGlobals: 'Don\'t use implicit dom globals. Access the global via the window object instead.'

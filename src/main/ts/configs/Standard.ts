@@ -1,17 +1,32 @@
 import { Linter } from 'eslint';
+import stylistic from '@stylistic/eslint-plugin';
+
+const stylisticRules = stylistic.configs.customize({
+  arrowParens: true,
+  blockSpacing: true,
+  braceStyle: '1tbs',
+  commaDangle: 'only-multiline',
+  flat: false,
+  quoteProps: 'consistent-as-needed',
+  indent: 2,
+  quotes: 'single',
+  semi: true,
+  jsx: true,
+});
 
 export const base: Linter.Config = {
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended-type-checked',
-    'plugin:@typescript-eslint/stylistic-type-checked'
+    'plugin:@typescript-eslint/stylistic-type-checked',
+    'plugin:@stylistic/disable-legacy'
   ],
   plugins: [
     '@typescript-eslint',
     '@stylistic',
     'import',
     'mocha',
-    'prefer-arrow',
+    'prefer-arrow'
   ],
   rules: {
     '@typescript-eslint/array-type': 'off',
@@ -39,7 +54,7 @@ export const base: Linter.Config = {
       vars: 'all',
       args: 'after-used',
       ignoreRestSiblings: true,
-      argsIgnorePattern: '^_'
+      argsIgnorePattern: '^_',
     }],
     '@typescript-eslint/prefer-for-of': 'error',
     '@typescript-eslint/prefer-function-type': 'error',
@@ -62,28 +77,18 @@ export const base: Linter.Config = {
     '@typescript-eslint/prefer-as-const': 'off',
     '@typescript-eslint/strict-boolean-expressions': 'off', // Needs StrictNullChecks
 
-    'array-bracket-spacing': [ 'error', 'always', { objectsInArrays: false, arraysInArrays: false }],
     'arrow-body-style': 'error',
-    'arrow-parens': [ 'error', 'always' ],
-    'arrow-spacing': 'error',
-    'comma-dangle': 'off',
     'complexity': 'off',
-    'computed-property-spacing': 'error',
     'constructor-super': 'error',
     'curly': 'error',
-    'dot-location': [ 'error', 'property' ],
     'dot-notation': 'error',
-    'eol-last': 'off',
     'eqeqeq': [ 'error', 'smart' ],
     'guard-for-in': 'error',
     'id-blacklist': 'error',
     'id-match': 'error',
-    'key-spacing': [ 'error', { beforeColon: false, afterColon: true, mode: 'strict' }],
     'max-classes-per-file': [ 'error', 1 ],
-    'max-len': [ 'warn', 160 ],
     'mocha/no-exclusive-tests': 'error',
     'mocha/no-identical-title': 'error',
-    'new-parens': 'error',
     'no-bitwise': 'error',
     'no-caller': 'error',
     'no-cond-assign': 'error',
@@ -93,63 +98,80 @@ export const base: Linter.Config = {
     'no-eval': 'error',
     'no-fallthrough': 'error',
     'no-invalid-this': 'off',
-    'no-multi-spaces': [ 'error', { ignoreEOLComments: true }],
-    'no-multiple-empty-lines': [ 'error', { max: 1 }],
     'no-nested-ternary': 'error',
     'no-new-wrappers': 'error',
     'no-throw-literal': 'error',
-    'no-trailing-spaces': 'error',
     'no-undef-init': 'error',
     'no-underscore-dangle': 'error',
     'no-unsafe-finally': 'error',
     'no-unused-expressions': [ 'error', { allowTernary: true }],
     'no-unused-labels': 'error',
-    'no-whitespace-before-property': 'error',
     'object-shorthand': 'error',
     'one-var': [ 'error', 'never' ],
     'prefer-arrow-callback': 'off', // Covered by prefer-arrow-functions
     'prefer-arrow/prefer-arrow-functions': 'error',
-    'quote-props': [ 'error', 'consistent-as-needed' ],
     'radix': 'error',
-    'rest-spread-spacing': 'error',
-    'semi-spacing': 'error',
-    'spaced-comment': 'error',
-    'space-unary-ops': 'error',
-    'switch-colon-spacing': 'error',
-    'template-curly-spacing': 'error',
     'use-isnan': 'error',
 
-    '@stylistic/brace-style': 'error',
-    '@stylistic/comma-spacing': 'error',
-    '@stylistic/func-call-spacing': 'error',
-    '@stylistic/indent': [ 'error', 2, {
-      FunctionDeclaration: { parameters: 'first' },
-      FunctionExpression: { parameters: 'first' },
-      SwitchCase: 1
-    }],
-    '@stylistic/keyword-spacing': 'error',
-    '@stylistic/member-delimiter-style': [ 'error', {
-      multiline: { delimiter: 'semi', requireLast: true },
-      singleline: { delimiter: 'semi', requireLast: false }
-    }],
-    '@stylistic/semi': [ 'error', 'always' ],
-    '@stylistic/space-before-blocks': 'error',
-    '@stylistic/space-before-function-paren': [ 'error', { anonymous: 'always', named: 'never' }],
-    '@stylistic/space-infix-ops': 'error',
-    '@stylistic/object-curly-spacing': [ 'error', 'always', { objectsInObjects: false }],
-    '@stylistic/quotes': [ 'error', 'single', { allowTemplateLiterals: true }],
-    '@stylistic/type-annotation-spacing': 'error',
+    ...stylisticRules.rules,
+    '@stylistic/eol-last': 'off',
+    '@stylistic/array-bracket-spacing': [ 'error', 'always', { objectsInArrays: false, arraysInArrays: false }],
+    '@stylistic/operator-linebreak': [ 'error', 'after' ],
+    '@stylistic/no-mixed-operators': 'off',
+    '@stylistic/max-len': [ 'warn', 160 ],
+    // '@stylistic/comma-dangle': 'off',
+    // '@stylistic/brace-style': 'error',
+    // '@stylistic/comma-spacing': 'error',
+    // '@stylistic/func-call-spacing': 'error',
+    // '@stylistic/indent': [ 'error', 2, {
+    //   FunctionDeclaration: { parameters: 'first' },
+    //   FunctionExpression: { parameters: 'first' },
+    //   SwitchCase: 1
+    // }],
+    // '@stylistic/keyword-spacing': 'error',
+    // '@stylistic/member-delimiter-style': [ 'error', {
+    //   multiline: { delimiter: 'semi', requireLast: true },
+    //   singleline: { delimiter: 'semi', requireLast: false },
+    // }],
+    // '@stylistic/semi': [ 'error', 'always' ],
+    // '@stylistic/space-before-blocks': 'error',
+    // '@stylistic/space-before-function-paren': [ 'error', { anonymous: 'always', named: 'never' }],
+    // '@stylistic/space-infix-ops': 'error',
+    // '@stylistic/object-curly-spacing': [ 'error', 'always', { objectsInObjects: false }],
+    // '@stylistic/quotes': [ 'error', 'single', { allowTemplateLiterals: true }],
+    // '@stylistic/type-annotation-spacing': 'error',
+    // '@stylistic/rest-spread-spacing': 'error',
+    // '@stylistic/semi-spacing': 'error',
+    // '@stylistic/spaced-comment': 'error',
+    // '@stylistic/space-unary-ops': 'error',
+    // '@stylistic/switch-colon-spacing': 'error',
+    // '@stylistic/template-curly-spacing': 'error',
+    // '@stylistic/quote-props': [ 'error', 'consistent-as-needed' ],
+    // '@stylistic/no-whitespace-before-property': 'error',
+    // '@stylistic/no-multi-spaces': [ 'error', { ignoreEOLComments: true }],
+    // '@stylistic/no-multiple-empty-lines': [ 'error', { max: 1 }],
+    // '@stylistic/max-len': [ 'warn', 160 ],
+    // '@stylistic/key-spacing': [ 'error', { beforeColon: false, afterColon: true, mode: 'strict' }],
+    // '@stylistic/dot-location': [ 'error', 'property' ],
+    // '@stylistic/arrow-parens': [ 'error', 'always' ],
+    // '@stylistic/arrow-spacing': 'error',
+    // '@stylistic/comma-dangle': 'off',
+    // '@stylistic/computed-property-spacing': 'error',
+    // '@stylistic/new-parens': 'error',
+    // '@stylistic/array-bracket-spacing': [ 'error', 'always', { objectsInArrays: false, arraysInArrays: false }],
+    // '@stylistic/no-trailing-spaces': 'error',
 
     'import/order': 'off',
-    'import/no-duplicates': 'error',
-  }
+    'import/no-duplicates': 'error'
+  },
+  reportUnusedDisableDirectives: true,
 };
 
 export const standard: Linter.Config = {
   extends: base.extends,
   plugins: [
     ...(base.plugins!),
-    '@tinymce', // means @tinymce/eslint-plugin (see https://eslint.org/docs/user-guide/configuring#naming-convention )
+    '@tinymce' // means @tinymce/eslint-plugin (see https://eslint.org/docs/user-guide/configuring#naming-convention )
   ],
   rules: {
     ...base.rules,
