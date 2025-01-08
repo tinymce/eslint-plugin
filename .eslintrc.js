@@ -1,7 +1,9 @@
+/* eslint-env node */
 module.exports = {
   'extends': './dist/test/module/ESLintConfig.js',
   "parserOptions": {
-      "project": "tsconfig.json",
-      "sourceType": "module"
-  }
+    "projectService": true,
+    "tsconfigRootDir": __dirname,
+  },
+  root: true,
 }

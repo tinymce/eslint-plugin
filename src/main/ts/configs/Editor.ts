@@ -13,7 +13,7 @@ export const editor: Linter.Config = {
     '@tinymce/prefer-mcagar-tiny-dom': 'error',
 
     '@typescript-eslint/explicit-module-boundary-types': [ 'error', { allowArgumentsExplicitlyTypedAsAny: true }],
-    '@typescript-eslint/comma-dangle': [ 'error', {
+    '@stylistic/comma-dangle': [ 'error', {
       arrays: 'only-multiline',
       objects: 'only-multiline',
       imports: 'never',
@@ -37,7 +37,7 @@ export const editor: Linter.Config = {
       }
     }],
 
-    // Disabled since we're using the typescript-eslint rule
+    // Disabled since we're using the stylistic rule
     'comma-dangle': 'off',
   },
   settings: {
