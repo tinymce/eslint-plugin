@@ -78,8 +78,17 @@ export const base: Linter.Config = {
     '@typescript-eslint/prefer-nullish-coalescing': 'off',
     '@typescript-eslint/non-nullable-type-assertion-style': 'off',
 
-    'arrow-body-style': 'error',
+    // Already in eslint-recommended list
     'constructor-super': 'error',
+    'no-debugger': 'error',
+    'no-empty': 'error',
+    'no-fallthrough': 'error',
+    'use-isnan': 'error',
+    'no-unsafe-finally': 'error',
+    'no-unused-labels': 'error',
+    'no-cond-assign': 'error',
+
+    'arrow-body-style': 'error',
     'curly': 'error',
     'dot-notation': 'error',
     'eqeqeq': [ 'error', 'smart' ],
@@ -90,27 +99,25 @@ export const base: Linter.Config = {
     'max-len': [ 'warn', 160 ],
     'no-bitwise': 'error',
     'no-caller': 'error',
-    'no-cond-assign': 'error',
     'no-console': 'error',
-    'no-debugger': 'error',
-    'no-empty': 'error',
     'no-eval': 'error',
-    'no-fallthrough': 'error',
     'no-nested-ternary': 'error',
     'no-new-wrappers': 'error',
     'no-throw-literal': 'error',
     'no-undef-init': 'error',
     'no-underscore-dangle': 'error',
-    'no-unsafe-finally': 'error',
-    'no-unused-labels': 'error',
     'object-shorthand': 'error',
     'one-var': [ 'error', 'never' ],
     'radix': 'error',
-    'use-isnan': 'error',
 
     'complexity': 'off',
     'no-invalid-this': 'off',
     'valid-typeof': 'off', // Disabled as it's handled by TypeScript
+
+    // Consider allowing from eslint recommended rules
+    'no-useless-escape': 'off',
+    'no-case-declarations': 'off',
+    'no-prototype-builtins': 'off',
 
     'import/no-duplicates': 'error',
     'import/order': 'off',
