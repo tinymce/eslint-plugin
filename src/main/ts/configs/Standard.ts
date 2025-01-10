@@ -2,8 +2,7 @@ import { Linter } from 'eslint';
 
 export const base: Linter.Config = {
   extends: [
-    // TODO: Look at enabling recommended eslint options
-    // 'eslint:recommended',
+    'eslint:recommended',
     'plugin:@typescript-eslint/recommended-type-checked',
     'plugin:@typescript-eslint/stylistic-type-checked',
   ],
@@ -77,16 +76,6 @@ export const base: Linter.Config = {
     '@typescript-eslint/switch-exhaustiveness-check': 'off',
     '@typescript-eslint/prefer-nullish-coalescing': 'off',
     '@typescript-eslint/non-nullable-type-assertion-style': 'off',
-
-    // Already in eslint-recommended list
-    'constructor-super': 'error',
-    'no-debugger': 'error',
-    'no-empty': 'error',
-    'no-fallthrough': 'error',
-    'use-isnan': 'error',
-    'no-unsafe-finally': 'error',
-    'no-unused-labels': 'error',
-    'no-cond-assign': 'error',
 
     'arrow-body-style': 'error',
     'curly': 'error',
