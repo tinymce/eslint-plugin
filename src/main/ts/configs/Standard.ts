@@ -70,13 +70,18 @@ export const base: Linter.Config = {
     '@typescript-eslint/switch-exhaustiveness-check': 'error',
     '@typescript-eslint/type-annotation-spacing': 'error',
     '@typescript-eslint/unified-signatures': 'error',
+    '@typescript-eslint/no-floating-promises': [
+      'error',
+      {
+        ignoreVoid: false
+      }
+    ],
 
     // TODO: Enable once we no longer support IE 11
     '@typescript-eslint/prefer-includes': 'off',
     '@typescript-eslint/prefer-string-starts-ends-with': 'off',
 
     // TODO: Investigate if these rules should be enabled
-    '@typescript-eslint/no-floating-promises': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-unnecessary-boolean-literal-compare': 'off', // Needs StrictNullChecks
     '@typescript-eslint/no-unnecessary-type-assertion': 'off', // to be investigated, produces different results on a uncompiled environment

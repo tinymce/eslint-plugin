@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 
 ### Changed
+- Re-enabled `@typescript-eslint/no-floating-promises` rule
 - Disabled `@typescript-eslint/require-await`, which caused some builds to fail inconsistently and doesn't seem particularly valuable
 
 ## 2.3.1 - 2023-05-21
