@@ -104,9 +104,11 @@ export const base: Linter.Config = {
     'valid-typeof': 'off', // Disabled as it's handled by TypeScript
 
     // Consider allowing from eslint recommended rules
-    'no-useless-escape': 'off',
     'no-case-declarations': 'off',
+    'no-control-regex': 'off',
+    'no-misleading-character-clas': 'off',
     'no-prototype-builtins': 'off',
+    'no-useless-escape': 'off',
 
     'import/no-duplicates': 'error',
     'import/order': 'off',
