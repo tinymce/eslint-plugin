@@ -1,4 +1,19 @@
 import { Linter } from 'eslint';
+import stylistic from '@stylistic/eslint-plugin';
+
+// Default rules listed here: https://github.com/eslint-stylistic/eslint-stylistic/blob/main/packages/eslint-plugin/configs/customize.ts#L32
+const stylisticRules = stylistic.configs.customize({
+  arrowParens: true,
+  blockSpacing: true,
+  braceStyle: '1tbs',
+  commaDangle: 'only-multiline',
+  flat: false,
+  quoteProps: 'consistent-as-needed',
+  indent: 2,
+  quotes: 'single',
+  semi: true,
+  jsx: true,
+});
 
 export const base: Linter.Config = {
   extends: [
@@ -119,72 +134,25 @@ export const base: Linter.Config = {
     'mocha/no-exclusive-tests': 'error',
     'mocha/no-identical-title': 'error',
 
-    '@stylistic/array-bracket-spacing': [
-      'error',
-      'always',
-      { objectsInArrays: false, arraysInArrays: false },
-    ],
-    '@stylistic/arrow-parens': [ 'error', 'always' ],
-    '@stylistic/arrow-spacing': 'error',
-    '@stylistic/brace-style': 'error',
-    '@stylistic/comma-spacing': 'error',
-    '@stylistic/computed-property-spacing': 'error',
-    '@stylistic/dot-location': [ 'error', 'property' ],
+    ...stylisticRules.rules,
+    '@stylistic/array-bracket-spacing': [ 'error', 'always', { objectsInArrays: false, arraysInArrays: false }],
     '@stylistic/func-call-spacing': 'error',
-    '@stylistic/indent': [
-      'error',
-      2,
-      {
-        FunctionDeclaration: { parameters: 'first' },
-        FunctionExpression: { parameters: 'first' },
-        SwitchCase: 1,
-      },
-    ],
-    '@stylistic/key-spacing': [
-      'error',
-      { beforeColon: false, afterColon: true, mode: 'strict' },
-    ],
-    '@stylistic/keyword-spacing': 'error',
-    '@stylistic/member-delimiter-style': [
-      'error',
-      {
-        multiline: { delimiter: 'semi', requireLast: true },
-        singleline: { delimiter: 'semi', requireLast: false },
-      },
-    ],
-    '@stylistic/new-parens': 'error',
     '@stylistic/no-multi-spaces': [ 'error', { ignoreEOLComments: true }],
-    '@stylistic/no-multiple-empty-lines': [ 'error', { max: 1 }],
-    '@stylistic/no-trailing-spaces': 'error',
-    '@stylistic/no-whitespace-before-property': 'error',
-    '@stylistic/object-curly-spacing': [
-      'error',
-      'always',
-      { objectsInObjects: false },
-    ],
-    '@stylistic/quote-props': [ 'error', 'consistent-as-needed' ],
-    '@stylistic/quotes': [ 'error', 'single', { allowTemplateLiterals: true }],
-    '@stylistic/rest-spread-spacing': 'error',
-    '@stylistic/semi-spacing': 'error',
-    '@stylistic/semi': [ 'error', 'always' ],
-    '@stylistic/space-before-blocks': 'error',
-    '@stylistic/space-before-function-paren': [
-      'error',
-      { anonymous: 'always', named: 'never' },
-    ],
-    '@stylistic/space-infix-ops': 'error',
-    '@stylistic/space-unary-ops': 'error',
-    '@stylistic/spaced-comment': 'error',
+    '@stylistic/object-curly-spacing': [ 'error', 'always', { objectsInObjects: false }],
+    '@stylistic/operator-linebreak': [ 'error', 'after' ],
     '@stylistic/switch-colon-spacing': 'error',
-    '@stylistic/template-curly-spacing': 'error',
-    '@stylistic/type-annotation-spacing': 'error',
 
     '@stylistic/comma-dangle': 'off',
     '@stylistic/eol-last': 'off',
+    '@stylistic/no-mixed-operators': 'off',
     // Continue using default max-len option to avoid changing too many files that
     // have max-len ignore comments
     '@stylistic/max-len': 'off',
+
+    // Consier removing
+    '@stylistic/indent-binary-ops': 'off',
   },
+  reportUnusedDisableDirectives: true
 };
 
 export const standard: Linter.Config = {
