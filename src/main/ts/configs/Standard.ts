@@ -82,6 +82,13 @@ export const base: Linter.Config = {
         ignoreVoid: false
       }
     ],
+    // TODO: Look at setting all exhaustive-check options to false to be stricter
+    '@typescript-eslint/switch-exhaustiveness-check': [
+      'error',
+      {
+        considerDefaultExhaustiveForUnions: true
+      }
+    ],
 
     // TODO: Enable once we no longer support IE 11
     '@typescript-eslint/prefer-includes': 'off',
