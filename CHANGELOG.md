@@ -7,12 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 2.4.0 - 2025-01-22
+
 ### Changed
 - Upgraded to `typescript` from v4 to v5
 - Upgraded `@typescript-eslint` packages from v5 to v8
 - Upgaded `eslint@^8.40.0` to `eslint@^8.57.0` to work with latest `@typescript-eslint` packages
 - Switched `eslint` and `@typescript-eslint` styling rules to use recommended `@stylistic` package
-- Enabled `no-duplicate-imports` rule in place of removed `@typescript-eslint/no-duplicate-imports` rule 
+- Enabled `no-duplicate-imports` rule in place of removed `@typescript-eslint/no-duplicate-imports` rule
 - Re-enabled `@typescript-eslint/no-floating-promises` rule
 - Disabled `@typescript-eslint/require-await`, which caused some builds to fail inconsistently and doesn't seem particularly valuable
 
