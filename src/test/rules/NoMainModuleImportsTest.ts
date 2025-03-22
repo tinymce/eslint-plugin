@@ -1,9 +1,12 @@
-import { RuleTester } from 'eslint';
+import tsParser from '@typescript-eslint/parser';
+import { RuleTester } from '@typescript-eslint/rule-tester';
 import { noMainModuleImports } from '../../main/ts/rules/NoMainModuleImports';
 
 const ruleTester = new RuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
-  parserOptions: { sourceType: 'module' }
+  languageOptions: {
+    parser: tsParser,
+    sourceType: 'module'
+  }
 });
 
 ruleTester.run('no-main-module-imports', noMainModuleImports, {
@@ -46,33 +49,33 @@ ruleTester.run('no-main-module-imports', noMainModuleImports, {
     {
       code: 'import { A } from \'./Main\';',
       filename: 'src/main/ts/api/File.ts',
-      errors: [{ message: 'Direct import to Main module is forbidden.' }]
+      errors: [{ messageId: 'noMainImport' }]
     },
     {
       code: 'import { B } from \'../api/Main\';',
       filename: 'src/main/ts/core/File.ts',
-      errors: [{ message: 'Direct import to Main module is forbidden.' }]
+      errors: [{ messageId: 'noMainImport' }]
     },
     {
       code: 'import { A } from \'ephox/swag/api/Main\';',
       filename: 'src/test/ts/File.ts',
-      errors: [{ message: 'Direct import to Main module is forbidden.' }]
+      errors: [{ messageId: 'noMainImport' }]
     },
     {
       code: 'import { A } from \'ephox/swag/api/Main\';',
       filename: 'src/demo/ts/Demo.ts',
-      errors: [{ message: 'Direct import to Main module is forbidden.' }]
+      errors: [{ messageId: 'noMainImport' }]
     },
     // Windows filepaths
     {
       code: 'import { A } from \'./Main\';',
       filename: 'src\\main\\ts\\api\\File.ts',
-      errors: [{ message: 'Direct import to Main module is forbidden.' }]
+      errors: [{ messageId: 'noMainImport' }]
     },
     {
       code: 'import { B } from \'../api/Main\';',
       filename: 'src\\main\\ts\\core\\File.ts',
-      errors: [{ message: 'Direct import to Main module is forbidden.' }]
+      errors: [{ messageId: 'noMainImport' }]
     }
   ]
 });

@@ -1,9 +1,12 @@
-import { RuleTester } from 'eslint';
+import tsParser from '@typescript-eslint/parser';
+import { RuleTester } from '@typescript-eslint/rule-tester';
 import { noPublicApiModuleImports } from '../../main/ts/rules/NoPublicApiModuleImports';
 
 const ruleTester = new RuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
-  parserOptions: { sourceType: 'module' }
+  languageOptions: {
+    parser: tsParser,
+    parserOptions: { sourceType: 'module' }
+  }
 });
 
 ruleTester.run('no-publicapi-module-imports', noPublicApiModuleImports, {
@@ -41,17 +44,17 @@ ruleTester.run('no-publicapi-module-imports', noPublicApiModuleImports, {
     {
       code: 'import { A } from \'./PublicApi\';',
       filename: 'src/main/ts/api/File.ts',
-      errors: [{ message: 'Direct import to PublicApi module is forbidden outside demos.' }]
+      errors: [{ messageId: 'noPublicApiImport' }]
     },
     {
       code: 'import { B } from \'../api/PublicApi\';',
       filename: 'src/main/ts/core/File.ts',
-      errors: [{ message: 'Direct import to PublicApi module is forbidden outside demos.' }]
+      errors: [{ messageId: 'noPublicApiImport' }]
     },
     {
       code: 'import { A } from \'ephox/swag/api/PublicApi\';',
       filename: 'src/test/ts/File.ts',
-      errors: [{ message: 'Direct import to PublicApi module is forbidden outside demos.' }]
+      errors: [{ messageId: 'noPublicApiImport' }]
     }
   ]
 });

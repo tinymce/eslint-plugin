@@ -1,9 +1,13 @@
-import { Rule } from 'eslint';
-import { Expression, Identifier, Node, Property, VariableDeclarator } from 'estree';
+import { ESLintUtils, TSESTree } from '@typescript-eslint/utils';
+import { RuleFix, RuleFixer } from '@typescript-eslint/utils/ts-eslint';
 import { extractIdentifier } from '../utils/ExtractUtils';
 import * as Globals from '../utils/Globals';
 import * as NewOrCallUtils from '../utils/NewOrCallUtils';
 import { hasVariableInScope } from '../utils/ScopeUtils';
+
+const createRule = ESLintUtils.RuleCreator(
+  () => 'https://github.com/tinymce/eslint-plugin'
+);
 
 interface Options {
   allowed: string[];
@@ -57,12 +61,17 @@ const getAllowedGlobals = (options: Partial<Options>): string[] => {
   }
 };
 
-const extractInitIdentifier = (node: VariableDeclarator): Identifier | null => {
+const extractInitIdentifier = (node: TSESTree.VariableDeclarator): TSESTree.Identifier | null => {
   const init = node.init;
   return init ? extractIdentifier(init) : null;
 };
 
-export const noImplicitDomGlobals: Rule.RuleModule = {
+export const noImplicitDomGlobals = createRule({
+  name: 'no-implicit-dom-globals',
+  defaultOptions: [{
+    allowed: [],
+    appendDefaults: true
+  }],
   meta: {
     type: 'problem',
     docs: {
@@ -97,18 +106,18 @@ export const noImplicitDomGlobals: Rule.RuleModule = {
     // PERFORMANCE: Convert the invalid list to a Set for better lookup times
     const invalid = new Set(Globals.getDomGlobals().filter((name) => !allowed.includes(name)));
 
-    const report = (node: Node) => {
+    const report = (node: TSESTree.Node) => {
       context.report({
         node,
         messageId: 'noImplicitDomGlobals',
-        fix: (fixer: Rule.RuleFixer): Rule.Fix => fixer.insertTextBefore(node, 'window.')
+        fix: (fixer: RuleFixer): RuleFix => fixer.insertTextBefore(node, 'window.')
       });
     };
 
-    const validateIdentifier = (identifier: Identifier | null) => {
+    const validateIdentifier = (identifier: TSESTree.Identifier | null, node: TSESTree.Node) => {
       if (identifier !== null) {
         const name = identifier.name;
-        if (invalid.has(name) && !hasVariableInScope(context, name)) {
+        if (invalid.has(name) && !hasVariableInScope(context, name, node)) {
           report(identifier);
         }
       }
@@ -116,63 +125,63 @@ export const noImplicitDomGlobals: Rule.RuleModule = {
 
     return {
       'VariableDeclarator': (node) => {
-        if (node.type === 'VariableDeclarator' && node.init) {
+        if (node.type === TSESTree.AST_NODE_TYPES.VariableDeclarator && node.init) {
           const identifier = extractInitIdentifier(node);
-          validateIdentifier(identifier);
+          validateIdentifier(identifier, node);
         }
       },
       'ExpressionStatement': (node) => {
-        if (node.type === 'ExpressionStatement') {
+        if (node.type === TSESTree.AST_NODE_TYPES.ExpressionStatement) {
           const identifier = extractIdentifier(node.expression);
-          validateIdentifier(identifier);
+          validateIdentifier(identifier, node);
         }
       },
-      'AssignmentExpression,BinaryExpression': (node: Expression) => {
-        if (node.type === 'AssignmentExpression' || node.type === 'BinaryExpression') {
+      'AssignmentExpression,BinaryExpression': (node: TSESTree.AssignmentExpression | TSESTree.BinaryExpression) => {
+        if (node.type === TSESTree.AST_NODE_TYPES.AssignmentExpression || node.type === TSESTree.AST_NODE_TYPES.BinaryExpression) {
           const leftIdentifier = extractIdentifier(node.left);
-          validateIdentifier(leftIdentifier);
+          validateIdentifier(leftIdentifier, node);
 
           const rightIdentifier = extractIdentifier(node.right);
-          validateIdentifier(rightIdentifier);
+          validateIdentifier(rightIdentifier, node);
         }
       },
       'ConditionalExpression': (node) => {
-        if (node.type === 'ConditionalExpression') {
+        if (node.type === TSESTree.AST_NODE_TYPES.ConditionalExpression) {
           const testIdentifier = extractIdentifier(node.test);
-          validateIdentifier(testIdentifier);
+          validateIdentifier(testIdentifier, node);
 
           const conIdentifier = extractIdentifier(node.consequent);
-          validateIdentifier(conIdentifier);
+          validateIdentifier(conIdentifier, node);
 
           const altIdentifier = extractIdentifier(node.alternate);
-          validateIdentifier(altIdentifier);
+          validateIdentifier(altIdentifier, node);
         }
       },
       'ArrayExpression': (node) => {
         node.elements.forEach((element) => {
           const identifier = extractIdentifier(element);
-          validateIdentifier(identifier);
+          validateIdentifier(identifier, node);
         });
       },
-      'ObjectExpression > Property': (node: Property) => {
-        if (node.type === 'Property') {
+      'ObjectExpression > Property': (node: TSESTree.Property) => {
+        if (node.type === TSESTree.AST_NODE_TYPES.Property) {
           const identifier = extractIdentifier(node.value);
-          validateIdentifier(identifier);
+          validateIdentifier(identifier, node);
         }
       },
       'ReturnStatement': (node) => {
-        if (node.type === 'ReturnStatement' && node.argument) {
+        if (node.type === TSESTree.AST_NODE_TYPES.ReturnStatement && node.argument) {
           const identifier = extractIdentifier(node.argument);
-          validateIdentifier(identifier);
+          validateIdentifier(identifier, node);
         }
       },
       ...NewOrCallUtils.forIdentifier((node, identifier) => {
         const name = identifier.name;
-        if (invalid.has(name) && !hasVariableInScope(context, name)) {
-          const callee = node.type === 'NewExpression' ? identifier : node;
+        if (invalid.has(name) && !hasVariableInScope(context, name, node)) {
+          const callee = node.type === TSESTree.AST_NODE_TYPES.NewExpression ? identifier : node;
           report(callee);
         }
       })
     };
   }
-};
+});

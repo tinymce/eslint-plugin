@@ -1,36 +1,38 @@
-import { Rule } from 'eslint';
-import { CallExpression, Identifier, NewExpression } from 'estree';
+import { TSESTree } from '@typescript-eslint/utils';
+import { RuleListener } from '@typescript-eslint/utils/ts-eslint';
 import { extractIdentifier } from './ExtractUtils';
 
-export const forIdentifier = (f: (node: CallExpression | NewExpression | Identifier, identifier: Identifier) => void): Rule.RuleListener => {
-  const checkCallee = (node: CallExpression | NewExpression) => {
-    const identifier = extractIdentifier(node.callee);
-    if (identifier !== null) {
-      f(node, identifier);
-    }
-  };
-
-  const checkArguments = (node: CallExpression | NewExpression) => {
-    node.arguments.forEach((arg) => {
-      const identifier = extractIdentifier(arg);
+export const forIdentifier =
+  (f: (node: TSESTree.CallExpression | TSESTree.NewExpression | TSESTree.Identifier, identifier: TSESTree.Identifier) => void): RuleListener => {
+    const checkCallee = (node: TSESTree.CallExpression | TSESTree.NewExpression) => {
+      const { callee } = node;
+      const identifier = extractIdentifier(callee);
       if (identifier !== null) {
-        f(identifier, identifier);
+        f(node, identifier);
       }
-    });
-  };
+    };
 
-  return {
-    CallExpression: (node) => {
-      if (node.type === 'CallExpression') {
-        checkCallee(node);
-        checkArguments(node);
+    const checkArguments = (node: TSESTree.CallExpression | TSESTree.NewExpression) => {
+      node.arguments.forEach((arg) => {
+        const identifier = extractIdentifier(arg);
+        if (identifier !== null) {
+          f(identifier, identifier);
+        }
+      });
+    };
+
+    return {
+      CallExpression: (node) => {
+        if (node.type === TSESTree.AST_NODE_TYPES.CallExpression) {
+          checkCallee(node);
+          checkArguments(node);
+        }
+      },
+      NewExpression: (node) => {
+        if (node.type === TSESTree.AST_NODE_TYPES.NewExpression) {
+          checkCallee(node);
+          checkArguments(node);
+        }
       }
-    },
-    NewExpression: (node) => {
-      if (node.type === 'NewExpression') {
-        checkCallee(node);
-        checkArguments(node);
-      }
-    }
+    };
   };
-};

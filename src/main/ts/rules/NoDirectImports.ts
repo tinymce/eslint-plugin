@@ -1,8 +1,14 @@
-import { Rule } from 'eslint';
+import { ESLintUtils } from '@typescript-eslint/utils';
 import { extractModuleSpecifier } from '../utils/ExtractUtils';
 import { isInternalLibModule, isInternalSrcModule } from '../utils/ImportUtils';
 
-export const noDirectImports: Rule.RuleModule = {
+const createRule = ESLintUtils.RuleCreator(
+  () => 'https://github.com/tinymce/eslint-plugin'
+);
+
+export const noDirectImports = createRule({
+  name: 'no-direct-imports',
+  defaultOptions: [],
   meta: {
     type: 'problem',
     docs: {
@@ -10,7 +16,8 @@ export const noDirectImports: Rule.RuleModule = {
     },
     messages: {
       noDirectImport: 'Direct import to {{ moduleSpecifier }} is forbidden.'
-    }
+    },
+    schema: []
   },
   create: (context) => ({
     ImportDeclaration: (node) => {
@@ -24,4 +31,4 @@ export const noDirectImports: Rule.RuleModule = {
       }
     }
   })
-};
+});

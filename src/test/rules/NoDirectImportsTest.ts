@@ -1,9 +1,12 @@
-import { RuleTester } from 'eslint';
+import tsParser from '@typescript-eslint/parser';
+import { RuleTester } from '@typescript-eslint/rule-tester';
 import { noDirectImports } from '../../main/ts/rules/NoDirectImports';
 
 const ruleTester = new RuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
-  parserOptions: { sourceType: 'module' }
+  languageOptions: {
+    parser: tsParser,
+    parserOptions: { sourceType: 'module' }
+  }
 });
 
 ruleTester.run('no-direct-imports', noDirectImports, {
@@ -16,11 +19,11 @@ ruleTester.run('no-direct-imports', noDirectImports, {
   invalid: [
     {
       code: 'import { Arr } from \'@ephox/katmari/lib/main/api/Arr\';',
-      errors: [{ message: 'Direct import to @ephox/katmari/lib/main/api/Arr is forbidden.' }]
+      errors: [{ messageId: 'noDirectImport' }]
     },
     {
       code: 'import { Unicode } from \'@ephox/katamari/src/main/ts/ephox/katamari/api/Unicode\';',
-      errors: [{ message: 'Direct import to @ephox/katamari/src/main/ts/ephox/katamari/api/Unicode is forbidden.' }]
+      errors: [{ messageId: 'noDirectImport' }]
     }
   ]
 });

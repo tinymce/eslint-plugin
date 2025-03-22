@@ -1,9 +1,15 @@
-import { Rule } from 'eslint';
+import { ESLintUtils, TSESTree } from '@typescript-eslint/utils';
 import { isEditorMemberExpression } from '../utils/EditorUtils';
 import { extractMemberIdentifiers } from '../utils/ExtractUtils';
 import { isPathInDemo, isPathInTest, normalizeFilePath } from '../utils/PathUtils';
 
-export const noDirectEditorEvents: Rule.RuleModule = {
+const createRule = ESLintUtils.RuleCreator(
+  () => 'https://github.com/tinymce/eslint-plugin'
+);
+
+export const noDirectEditorEvents = createRule({
+  name: 'no-direct-editor-events',
+  defaultOptions: [],
   meta: {
     type: 'problem',
     docs: {
@@ -11,10 +17,11 @@ export const noDirectEditorEvents: Rule.RuleModule = {
     },
     messages: {
       noDirectEditorEvents: 'Dispatching events is forbidden outside api/Events.ts.',
-    }
+    },
+    schema: []
   },
   create: (context) => {
-    const filename = normalizeFilePath(context.getFilename());
+    const filename = normalizeFilePath(context.filename);
     // Ignore in tests, demos or Events.ts
     // NOTE: To allow for some legacy setups we currently only enforce `Events.ts` instead of `api/Events.ts`
     if (isPathInTest(filename) || isPathInDemo(filename) || filename.endsWith('/Events.ts')) {
@@ -23,7 +30,7 @@ export const noDirectEditorEvents: Rule.RuleModule = {
       return {
         CallExpression: (node) => {
           const callee = node.callee;
-          if (callee.type === 'MemberExpression' && isEditorMemberExpression(callee)) {
+          if (callee.type === TSESTree.AST_NODE_TYPES.MemberExpression && isEditorMemberExpression(callee)) {
             const identifiers = extractMemberIdentifiers(callee);
             if (identifiers[1]?.name === 'dispatch' || identifiers[1]?.name === 'fire') {
               context.report({
@@ -36,4 +43,4 @@ export const noDirectEditorEvents: Rule.RuleModule = {
       };
     }
   }
-};
+});

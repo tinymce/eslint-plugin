@@ -1,9 +1,15 @@
-import { Rule } from 'eslint';
-import { TSESTree } from '@typescript-eslint/typescript-estree';
+import { ESLintUtils, TSESTree } from '@typescript-eslint/utils';
 
-export const noEnumsInExportSpecifier: Rule.RuleModule = {
+const createRule = ESLintUtils.RuleCreator(
+  () => 'https://github.com/tinymce/eslint-plugin'
+);
+
+export const noEnumsInExportSpecifier = createRule({
+  name: 'no-enums-in-export-specifier',
+  defaultOptions: [],
   meta: {
     type: 'problem',
+    schema: [],
     docs: {
       description: 'Disallows enums to be exported though export specifier at the end of the file.'
     },
@@ -14,13 +20,12 @@ export const noEnumsInExportSpecifier: Rule.RuleModule = {
   create: (context) => {
     const enumNames: Record<string, true> = {};
     return {
-      TSEnumDeclaration: (n: unknown) => {
-        const node = n as TSESTree.TSEnumDeclaration;
+      TSEnumDeclaration: (node: TSESTree.TSEnumDeclaration) => {
         enumNames[node.id.name] = true;
       },
-      ExportSpecifier: (node) => {
-        if (node.type === 'ExportSpecifier') {
-          const name = node.local.type === 'Identifier' ? node.local.name : undefined;
+      ExportSpecifier: (node: TSESTree.ExportSpecifier) => {
+        if (node.type === TSESTree.AST_NODE_TYPES.ExportSpecifier) {
+          const name = node.local.type === TSESTree.AST_NODE_TYPES.Identifier ? node.local.name : undefined;
           if (name && Object.prototype.hasOwnProperty.call(enumNames, name) && enumNames[name]) {
             context.report({ node, messageId: 'noEnumsInExportSpecifier' });
           }
@@ -28,4 +33,4 @@ export const noEnumsInExportSpecifier: Rule.RuleModule = {
       }
     };
   }
-};
+});
