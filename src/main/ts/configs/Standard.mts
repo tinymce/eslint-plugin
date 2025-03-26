@@ -18,6 +18,8 @@ export const base = tseslint.config(
       },
     },
     rules: {
+      'consistent-this': [ 'error', 'self' ],
+      '@typescript-eslint/no-non-null-assertion': 'error',
       '@typescript-eslint/array-type': 'off',
       '@typescript-eslint/await-thenable': 'error',
       '@typescript-eslint/ban-ts-comment': 'error',
@@ -158,7 +160,18 @@ export const base = tseslint.config(
       'object-shorthand': 'error',
       'one-var': [ 'error', 'never' ],
       'prefer-arrow-callback': 'off', // Covered by prefer-arrow-functions
-      'prefer-arrow-functions/prefer-arrow-functions': 'error',
+      'prefer-arrow-functions/prefer-arrow-functions': [
+        'error',
+        {
+          allowedNames: [],
+          allowNamedFunctions: false,
+          allowObjectProperties: false,
+          classPropertiesAllowed: false,
+          disallowPrototype: false,
+          returnStyle: 'unchanged',
+          singleReturnOnly: false
+        }
+      ],
       '@stylistic/quote-props': [ 'error', 'consistent-as-needed' ],
       'radix': 'error',
       '@stylistic/rest-spread-spacing': 'error',
