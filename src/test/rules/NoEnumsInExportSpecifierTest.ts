@@ -27,7 +27,7 @@ ruleTester.run('no-enums-in-export-specifier', noEnumsInExportSpecifier, {
       code: `
       const NotEnum = true;
       export {
-      NotEnum
+        NotEnum
       };
       `
     },
@@ -36,7 +36,7 @@ ruleTester.run('no-enums-in-export-specifier', noEnumsInExportSpecifier, {
       const isPrototypeOf = 'a';
 
       export {
-      isPrototypeOf
+        isPrototypeOf
       };
       `
     }
@@ -47,7 +47,7 @@ ruleTester.run('no-enums-in-export-specifier', noEnumsInExportSpecifier, {
       code: `
       enum A { A, B, C };
       export {
-      A
+        A
       };
       `,
       errors: [{ messageId: 'noEnumsInExportSpecifier' }]
@@ -56,7 +56,7 @@ ruleTester.run('no-enums-in-export-specifier', noEnumsInExportSpecifier, {
       code: `
       const enum B { A, B, C };
       export {
-      B
+        B
       };
       `,
       errors: [{ messageId: 'noEnumsInExportSpecifier' }]
