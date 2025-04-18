@@ -7,6 +7,7 @@ import tseslint from 'typescript-eslint';
 // c.f: https://github.com/typescript-eslint/examples/blob/main/packages/eslint-plugin-example-typed-linting/eslint.config.mjs
 export const base = tseslint.config(
   tseslint.configs.recommendedTypeChecked,
+  // tseslint.configs.stylisticTypeChecked,
   {
     plugins: {
       '@stylistic': stylisticPlugin,
@@ -32,6 +33,7 @@ export const base = tseslint.config(
       '@typescript-eslint/explicit-member-accessibility': [ 'error', { accessibility: 'explicit' }],
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@stylistic/func-call-spacing': 'error',
+      // The indent rule is broken on ts code bases. C.f: https://github.com/typescript-eslint/typescript-eslint/issues/1824
       '@stylistic/indent': [ 'error', 2, {
         FunctionDeclaration: { parameters: 'first' },
         FunctionExpression: { parameters: 'first' },
