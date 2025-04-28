@@ -1,13 +1,19 @@
-import { Rule } from 'eslint';
+import { ESLintUtils } from '@typescript-eslint/utils';
+import { extractModuleSpecifier } from '../utils/ExtractUtils';
 import { isInternalPathAlias, isPublicApiImport } from '../utils/ImportUtils';
 import { isPathInDemo, isPathInMain, normalizeFilePath } from '../utils/PathUtils';
-import { extractModuleSpecifier } from '../utils/ExtractUtils';
+
+const createRule = ESLintUtils.RuleCreator(
+  () => 'https://github.com/tinymce/eslint-plugin'
+);
 
 const mainPathValidator = isPublicApiImport;
 
 const genericPathValidator = (path: string) => isPublicApiImport(path) && isInternalPathAlias(path);
 
-export const noPublicApiModuleImports: Rule.RuleModule = {
+export const noPublicApiModuleImports = createRule({
+  name: 'no-public-api-module-imports',
+  defaultOptions: [],
   meta: {
     type: 'problem',
     docs: {
@@ -15,10 +21,11 @@ export const noPublicApiModuleImports: Rule.RuleModule = {
     },
     messages: {
       noPublicApiImport: 'Direct import to PublicApi module is forbidden outside demos.'
-    }
+    },
+    schema: []
   },
   create: (context) => {
-    const filename = normalizeFilePath(context.getFilename());
+    const filename = normalizeFilePath(context.filename);
     // Demo files are the sole location we want to allow
     if (isPathInDemo(filename)) {
       return {};
@@ -37,4 +44,4 @@ export const noPublicApiModuleImports: Rule.RuleModule = {
       };
     }
   }
-};
+});

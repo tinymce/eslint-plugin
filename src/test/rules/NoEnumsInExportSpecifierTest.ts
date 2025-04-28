@@ -1,9 +1,15 @@
-import { RuleTester } from 'eslint';
+import tsParser from '@typescript-eslint/parser';
+import { RuleTester } from '@typescript-eslint/rule-tester';
 import { noEnumsInExportSpecifier } from '../../main/ts/rules/NoEnumsInExportSpecifier';
 
 const ruleTester = new RuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
-  parserOptions: { sourceType: 'module' }
+  languageOptions: {
+    parser: tsParser,
+    parserOptions: {
+      sourceType: 'module',
+      ecmaVersion: 'latest',
+    }
+  }
 });
 
 ruleTester.run('no-enums-in-export-specifier', noEnumsInExportSpecifier, {
@@ -44,7 +50,7 @@ ruleTester.run('no-enums-in-export-specifier', noEnumsInExportSpecifier, {
         A
       };
       `,
-      errors: [{ message: 'Exports of enums needs to be where it\'s being declared.' }]
+      errors: [{ messageId: 'noEnumsInExportSpecifier' }]
     },
     {
       code: `
@@ -53,7 +59,7 @@ ruleTester.run('no-enums-in-export-specifier', noEnumsInExportSpecifier, {
         B
       };
       `,
-      errors: [{ message: 'Exports of enums needs to be where it\'s being declared.' }]
+      errors: [{ messageId: 'noEnumsInExportSpecifier' }]
     }
   ]
 });

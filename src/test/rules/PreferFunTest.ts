@@ -1,9 +1,12 @@
-import { RuleTester } from 'eslint';
+import tsParser from '@typescript-eslint/parser';
+import { RuleTester } from '@typescript-eslint/rule-tester';
 import { preferFun } from '../../main/ts/rules/PreferFun';
 
 const ruleTester = new RuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
-  parserOptions: { sourceType: 'module' }
+  languageOptions: {
+    parser: tsParser,
+    parserOptions: { sourceType: 'module' }
+  }
 });
 
 ruleTester.run('prefer-fun', preferFun, {
@@ -67,10 +70,10 @@ ruleTester.run('prefer-fun', preferFun, {
       const d = { action() {} };
       `,
       errors: [
-        { message: 'Use `Fun.noop` instead of redeclaring a no-op function, eg: `() => {}`' },
-        { message: 'Use `Fun.noop` instead of redeclaring a no-op function, eg: `() => {}`' },
-        { message: 'Use `Fun.noop` instead of redeclaring a no-op function, eg: `() => {}`' },
-        { message: 'Use `Fun.noop` instead of redeclaring a no-op function, eg: `() => {}`' }
+        { messageId: 'preferNoop' },
+        { messageId: 'preferNoop' },
+        { messageId: 'preferNoop' },
+        { messageId: 'preferNoop' }
       ],
     },
     {
@@ -82,10 +85,10 @@ ruleTester.run('prefer-fun', preferFun, {
       const h = Fun.constant(true);
       `,
       errors: [
-        { message: 'Use `Fun.always` instead of redeclaring a function that always returns true, eg: `() => true`' },
-        { message: 'Use `Fun.always` instead of redeclaring a function that always returns true, eg: `() => true`' },
-        { message: 'Use `Fun.always` instead of redeclaring a function that always returns true, eg: `() => true`' },
-        { message: 'Use `Fun.always` instead of redeclaring a function that always returns true, eg: `() => true`' }
+        { messageId: 'preferAlways' },
+        { messageId: 'preferAlways' },
+        { messageId: 'preferAlways' },
+        { messageId: 'preferAlways' }
       ],
     },
     {
@@ -97,10 +100,10 @@ ruleTester.run('prefer-fun', preferFun, {
       const l = Fun.constant(false);
       `,
       errors: [
-        { message: 'Use `Fun.never` instead of redeclaring a function that always returns false, eg: `() => false`' },
-        { message: 'Use `Fun.never` instead of redeclaring a function that always returns false, eg: `() => false`' },
-        { message: 'Use `Fun.never` instead of redeclaring a function that always returns false, eg: `() => false`' },
-        { message: 'Use `Fun.never` instead of redeclaring a function that always returns false, eg: `() => false`' }
+        { messageId: 'preferNever' },
+        { messageId: 'preferNever' },
+        { messageId: 'preferNever' },
+        { messageId: 'preferNever' }
       ],
     },
     {
@@ -111,10 +114,10 @@ ruleTester.run('prefer-fun', preferFun, {
       const p = () => \`template\`;
       `,
       errors: [
-        { message: 'Use `Fun.constant` instead of redeclaring a function that always returns the same value, eg: `() => 0`' },
-        { message: 'Use `Fun.constant` instead of redeclaring a function that always returns the same value, eg: `() => 0`' },
-        { message: 'Use `Fun.constant` instead of redeclaring a function that always returns the same value, eg: `() => 0`' },
-        { message: 'Use `Fun.constant` instead of redeclaring a function that always returns the same value, eg: `() => 0`' }
+        { messageId: 'preferConstant' },
+        { messageId: 'preferConstant' },
+        { messageId: 'preferConstant' },
+        { messageId: 'preferConstant' }
       ],
     },
     {
@@ -123,8 +126,8 @@ ruleTester.run('prefer-fun', preferFun, {
       const r = [].map((x) => x);
       `,
       errors: [
-        { message: 'Use `Fun.identity` instead of redeclaring a function that always returns the arguments, eg: `(x) => x`' },
-        { message: 'Use `Fun.identity` instead of redeclaring a function that always returns the arguments, eg: `(x) => x`' }
+        { messageId: 'preferIdentity' },
+        { messageId: 'preferIdentity' },
       ],
     }
   ]

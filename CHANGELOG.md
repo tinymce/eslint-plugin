@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Added
+- Support for eslint V9
+
+### Removed
+- Support for eslint V8
+
 ## 2.4.0 - 2025-01-22
 
 ### Changed

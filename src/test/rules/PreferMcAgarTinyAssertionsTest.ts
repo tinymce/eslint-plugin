@@ -1,9 +1,12 @@
-import { RuleTester } from 'eslint';
+import tsParser from '@typescript-eslint/parser';
+import { RuleTester } from '@typescript-eslint/rule-tester';
 import { preferMcAgarTinyAssertions } from '../../main/ts/rules/PreferMcAgarTinyAssertions';
 
 const ruleTester = new RuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
-  parserOptions: { sourceType: 'module' }
+  languageOptions: {
+    parser: tsParser,
+    parserOptions: { sourceType: 'module' }
+  }
 });
 
 ruleTester.run('prefer-mcagar-tiny-assertions', preferMcAgarTinyAssertions, {
@@ -40,11 +43,11 @@ ruleTester.run('prefer-mcagar-tiny-assertions', preferMcAgarTinyAssertions, {
       assert.equal(editor.getContent({ no_events: true }), '<p></p>');
       `,
       errors: [
-        { message: 'Use `TinyAssertions.assertContent` instead of manually asserting the content.' },
-        { message: 'Use `TinyAssertions.assertContent` instead of manually asserting the content.' },
-        { message: 'Use `TinyAssertions.assertContent` instead of manually asserting the content.' },
-        { message: 'Use `TinyAssertions.assertContent` instead of manually asserting the content.' },
-        { message: 'Use `TinyAssertions.assertContent` instead of manually asserting the content.' }
+        { messageId: 'preferAssertContent' },
+        { messageId: 'preferAssertContent' },
+        { messageId: 'preferAssertContent' },
+        { messageId: 'preferAssertContent' },
+        { messageId: 'preferAssertContent' }
       ],
       // Note: The fixer doesn't touch imports
       output: `
@@ -70,8 +73,8 @@ ruleTester.run('prefer-mcagar-tiny-assertions', preferMcAgarTinyAssertions, {
       );
       `,
       errors: [
-        { message: 'Use `TinyAssertions.assertContent` instead of manually asserting the content.' },
-        { message: 'Use `TinyAssertions.assertContent` instead of manually asserting the content.' }
+        { messageId: 'preferAssertContent' },
+        { messageId: 'preferAssertContent' }
       ],
       // Note: The fixer doesn't touch imports
       output: `
@@ -97,10 +100,10 @@ ruleTester.run('prefer-mcagar-tiny-assertions', preferMcAgarTinyAssertions, {
       assert.equal(editor.getBody().innerHTML, '<p><br></p>');
       `,
       errors: [
-        { message: 'Use `TinyAssertions.assertRawContent` instead of manually asserting the raw content.' },
-        { message: 'Use `TinyAssertions.assertRawContent` instead of manually asserting the raw content.' },
-        { message: 'Use `TinyAssertions.assertRawContent` instead of manually asserting the raw content.' },
-        { message: 'Use `TinyAssertions.assertRawContent` instead of manually asserting the raw content.' }
+        { messageId: 'preferAssertRawContent' },
+        { messageId: 'preferAssertRawContent' },
+        { messageId: 'preferAssertRawContent' },
+        { messageId: 'preferAssertRawContent' }
       ],
       // Note: The fixer doesn't touch imports
       output: `

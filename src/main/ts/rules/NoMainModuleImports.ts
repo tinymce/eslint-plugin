@@ -1,13 +1,19 @@
-import { Rule } from 'eslint';
+import { ESLintUtils } from '@typescript-eslint/utils';
+import { extractModuleSpecifier } from '../utils/ExtractUtils';
 import { isInternalPathAlias, isMainImport } from '../utils/ImportUtils';
 import { isPathInMain, normalizeFilePath } from '../utils/PathUtils';
-import { extractModuleSpecifier } from '../utils/ExtractUtils';
+
+const createRule = ESLintUtils.RuleCreator(
+  () => 'https://github.com/tinymce/eslint-plugin'
+);
 
 const mainPathValidator = isMainImport;
 
 const genericPathValidator = (path: string) => isMainImport(path) && isInternalPathAlias(path);
 
-export const noMainModuleImports: Rule.RuleModule = {
+export const noMainModuleImports = createRule({
+  name: 'no-main-module-imports',
+  defaultOptions: [],
   meta: {
     type: 'problem',
     docs: {
@@ -15,7 +21,8 @@ export const noMainModuleImports: Rule.RuleModule = {
     },
     messages: {
       noMainImport: 'Direct import to Main module is forbidden.'
-    }
+    },
+    schema: [],
   },
   create: (context) => {
     const filename = normalizeFilePath(context.getFilename());
@@ -32,4 +39,4 @@ export const noMainModuleImports: Rule.RuleModule = {
       }
     };
   }
-};
+});

@@ -1,9 +1,12 @@
-import { RuleTester } from 'eslint';
+import tsParser from '@typescript-eslint/parser';
+import { RuleTester } from '@typescript-eslint/rule-tester';
 import { noDirectEditorEvents } from '../../main/ts/rules/NoDirectEditorEvents';
 
 const ruleTester = new RuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
-  parserOptions: { sourceType: 'module' }
+  languageOptions: {
+    parser: tsParser,
+    parserOptions: { sourceType: 'module' },
+  }
 });
 
 ruleTester.run('no-direct-editor-events', noDirectEditorEvents, {
@@ -53,9 +56,9 @@ ruleTester.run('no-direct-editor-events', noDirectEditorEvents, {
       editor.fire('myevent', { value: 'custom' });
       `,
       errors: [
-        { message: 'Dispatching events is forbidden outside api/Events.ts.' },
-        { message: 'Dispatching events is forbidden outside api/Events.ts.' },
-        { message: 'Dispatching events is forbidden outside api/Events.ts.' }
+        { messageId: 'noDirectEditorEvents' },
+        { messageId: 'noDirectEditorEvents' },
+        { messageId: 'noDirectEditorEvents' }
       ]
     },
     // Windows filepath
@@ -67,9 +70,9 @@ ruleTester.run('no-direct-editor-events', noDirectEditorEvents, {
       editor.fire('myevent', { value: 'custom' });
       `,
       errors: [
-        { message: 'Dispatching events is forbidden outside api/Events.ts.' },
-        { message: 'Dispatching events is forbidden outside api/Events.ts.' },
-        { message: 'Dispatching events is forbidden outside api/Events.ts.' }
+        { messageId: 'noDirectEditorEvents' },
+        { messageId: 'noDirectEditorEvents' },
+        { messageId: 'noDirectEditorEvents' }
       ]
     }
   ]

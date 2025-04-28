@@ -1,9 +1,12 @@
-import { RuleTester } from 'eslint';
+import tsParser from '@typescript-eslint/parser';
+import { RuleTester } from '@typescript-eslint/rule-tester';
 import { noDirectEditorOptions } from '../../main/ts/rules/NoDirectEditorOptions';
 
 const ruleTester = new RuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
-  parserOptions: { sourceType: 'module' }
+  languageOptions: {
+    parser: tsParser,
+    parserOptions: { sourceType: 'module' }
+  }
 });
 
 ruleTester.run('no-direct-editor-options', noDirectEditorOptions, {
@@ -52,14 +55,14 @@ ruleTester.run('no-direct-editor-options', noDirectEditorOptions, {
       editor.getParam("my_option");
       `,
       errors: [
-        { message: 'Direct access to options is forbidden outside api/Options.ts.' },
-        { message: 'Direct access to options is forbidden outside api/Options.ts.' }
+        { messageId: 'noDirectEditorOption' },
+        { messageId: 'noDirectEditorOption' }
       ]
     },
     {
       filename: 'src/main/ts/Plugin.ts',
       code: 'editor.options.register("my_option", { processor: \'string\', default: \'test\' });',
-      errors: [{ message: 'Registering options is forbidden outside api/Options.ts.' }]
+      errors: [{ messageId: 'noRegisterEditorOption' }]
     },
     // Windows filepath
     {
@@ -69,14 +72,14 @@ ruleTester.run('no-direct-editor-options', noDirectEditorOptions, {
       editor.getParam("my_option");
       `,
       errors: [
-        { message: 'Direct access to options is forbidden outside api/Options.ts.' },
-        { message: 'Direct access to options is forbidden outside api/Options.ts.' }
+        { messageId: 'noDirectEditorOption' },
+        { messageId: 'noDirectEditorOption' }
       ]
     },
     {
       filename: 'src\\main\\ts\\Plugin.ts',
       code: 'editor.options.register("my_option", { processor: \'string\', default: \'test\' });',
-      errors: [{ message: 'Registering options is forbidden outside api/Options.ts.' }]
+      errors: [{ messageId: 'noRegisterEditorOption' }]
     }
   ]
 });

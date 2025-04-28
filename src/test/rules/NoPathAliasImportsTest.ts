@@ -1,9 +1,12 @@
-import { RuleTester } from 'eslint';
+import tsParser from '@typescript-eslint/parser';
+import { RuleTester } from '@typescript-eslint/rule-tester';
 import { noPathAliasImports } from '../../main/ts/rules/NoPathAliasImports';
 
 const ruleTester = new RuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
-  parserOptions: { sourceType: 'module' }
+  languageOptions: {
+    parser: tsParser,
+    parserOptions: { sourceType: 'module' }
+  }
 });
 
 ruleTester.run('no-path-alias-imports', noPathAliasImports, {
@@ -46,17 +49,17 @@ ruleTester.run('no-path-alias-imports', noPathAliasImports, {
     {
       code: 'import { A } from \'ephox/something/something\';',
       filename: 'src/main/ts/core/File.ts',
-      errors: [{ message: 'Imports with path aliases within src/main is forbidden.' }],
+      errors: [{ messageId: 'noPathAliasImport' }],
     },
     {
       code: 'import { B } from \'tiny/something/something\';',
       filename: 'src/main/ts/core/File.ts',
-      errors: [{ message: 'Imports with path aliases within src/main is forbidden.' }],
+      errors: [{ messageId: 'noPathAliasImport' }],
     },
     {
       code: 'import { C } from \'tinymce/something/something\';',
       filename: 'src/main/ts/core/File.ts',
-      errors: [{ message: 'Imports with path aliases within src/main is forbidden.' }],
+      errors: [{ messageId: 'noPathAliasImport' }],
     }
   ]
 });

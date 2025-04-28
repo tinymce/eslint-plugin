@@ -1,9 +1,15 @@
-import { Rule } from 'eslint';
+import { ESLintUtils } from '@typescript-eslint/utils';
 import { extractModuleSpecifier } from '../utils/ExtractUtils';
 import { isInternalPathAlias } from '../utils/ImportUtils';
 import { isPathInMain } from '../utils/PathUtils';
 
-export const noPathAliasImports: Rule.RuleModule = {
+const createRule = ESLintUtils.RuleCreator(
+  () => 'https://github.com/tinymce/eslint-plugin'
+);
+
+export const noPathAliasImports = createRule({
+  name: 'no-path-alias-imports',
+  defaultOptions: [],
   meta: {
     type: 'problem',
     docs: {
@@ -11,10 +17,11 @@ export const noPathAliasImports: Rule.RuleModule = {
     },
     messages: {
       noPathAliasImport: 'Imports with path aliases within src/main is forbidden.'
-    }
+    },
+    schema: [],
   },
   create: (context) => {
-    if (isPathInMain(context.getFilename())) {
+    if (isPathInMain(context.filename)) {
       return {
         ImportDeclaration: (node) => {
           if (isInternalPathAlias(extractModuleSpecifier(node))) {
@@ -29,4 +36,4 @@ export const noPathAliasImports: Rule.RuleModule = {
       return {};
     }
   }
-};
+});

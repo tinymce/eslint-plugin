@@ -3,11 +3,13 @@
     "allowSyntheticDefaultImports": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
+    "allowJs": true,
+    "skipLibCheck": true,
     "declaration": false,
     "declarationMap": false,
     "esModuleInterop": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -16,7 +18,9 @@
     "sourceMap": true,
     "strict": true,
     "target": "es2017",
-    "lib": ["es2017"],
+    "lib": [
+      "es2017"
+    ],
     "outDir": "dist",
     "rootDir": "src"
   },
