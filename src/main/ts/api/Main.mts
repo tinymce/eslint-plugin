@@ -11,6 +11,7 @@ import { noPublicApiModuleImports } from '../rules/NoPublicApiModuleImports.js';
 import { preferFun } from '../rules/PreferFun.js';
 import { preferMcAgarTinyAssertions } from '../rules/PreferMcAgarTinyAssertions.js';
 import { preferMcAgarTinyDom } from '../rules/PreferMcAgarTinyDom.js';
+import { typesAtTop } from '../rules/TypesAtTop.js';
 
 import tseslint from 'typescript-eslint';
 
@@ -25,7 +26,8 @@ const rules = {
   'no-implicit-dom-globals': noImplicitDomGlobals,
   'prefer-fun': preferFun,
   'prefer-mcagar-tiny-assertions': preferMcAgarTinyAssertions,
-  'prefer-mcagar-tiny-dom': preferMcAgarTinyDom
+  'prefer-mcagar-tiny-dom': preferMcAgarTinyDom,
+  'types-at-top': typesAtTop
 };
 
 const configs: FlatConfig.SharedConfigs = {
@@ -65,6 +67,7 @@ const standard = tseslint.config(
       '@tinymce/prefer-fun': 'error',
       '@tinymce/prefer-mcagar-tiny-assertions': 'off',
       '@tinymce/prefer-mcagar-tiny-dom': 'off',
+      '@tinymce/types-at-top': 'error',
     }
   });
 
