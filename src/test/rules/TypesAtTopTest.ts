@@ -77,6 +77,23 @@ ruleTester.run('types-at-top', typesAtTop, {
         return () => {};
       };
       `
+    },
+    {
+      code: `
+      import { Utils } from 'utils';
+
+      export interface ExportedInterface {
+        name: string;
+      }
+
+      export type ExportedType = string;
+
+      export enum ExportedEnum {
+        A, B, C
+      }
+
+      const afterExportedTypes = 'after exported types';
+      `
     }
   ],
   invalid: [
@@ -136,6 +153,28 @@ ruleTester.run('types-at-top', typesAtTop, {
       }
       `,
       errors: [{ messageId: 'typeNotAtTop' }]
+    },
+    {
+      code: `
+      import { Utils } from 'utils';
+
+      export const value = 'exported code';
+
+      export interface Config {
+        setting: boolean;
+      }
+
+      export type MyType = string;
+
+      export enum Status {
+        ACTIVE, INACTIVE
+      }
+      `,
+      errors: [
+        { messageId: 'typeNotAtTop' },
+        { messageId: 'typeNotAtTop' },
+        { messageId: 'typeNotAtTop' }
+      ]
     }
   ]
 });

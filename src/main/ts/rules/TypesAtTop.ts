@@ -23,16 +23,47 @@ export const typesAtTop = createRule({
     let hasNonTypeCode = false;
     let firstNonTypeCodeLine = 0;
 
-    const isTypeDeclaration = (node: TSESTree.Node): boolean => node.type === TSESTree.AST_NODE_TYPES.TSInterfaceDeclaration ||
-             node.type === TSESTree.AST_NODE_TYPES.TSTypeAliasDeclaration ||
-             node.type === TSESTree.AST_NODE_TYPES.TSEnumDeclaration;
+    const isTypeDeclaration = (node: TSESTree.Node): boolean => {
+      if (node.type === TSESTree.AST_NODE_TYPES.TSInterfaceDeclaration ||
+          node.type === TSESTree.AST_NODE_TYPES.TSTypeAliasDeclaration ||
+          node.type === TSESTree.AST_NODE_TYPES.TSEnumDeclaration) {
+        return true;
+      }
 
-    const isCodeStatement = (node: TSESTree.Node): boolean => node.type === TSESTree.AST_NODE_TYPES.VariableDeclaration ||
-             node.type === TSESTree.AST_NODE_TYPES.FunctionDeclaration ||
-             node.type === TSESTree.AST_NODE_TYPES.ClassDeclaration ||
-             node.type === TSESTree.AST_NODE_TYPES.ExpressionStatement ||
-             node.type === TSESTree.AST_NODE_TYPES.ExportNamedDeclaration ||
-             node.type === TSESTree.AST_NODE_TYPES.ExportDefaultDeclaration;
+      // Handle exported type declarations
+      if (node.type === TSESTree.AST_NODE_TYPES.ExportNamedDeclaration && node.declaration) {
+        return node.declaration.type === TSESTree.AST_NODE_TYPES.TSInterfaceDeclaration ||
+               node.declaration.type === TSESTree.AST_NODE_TYPES.TSTypeAliasDeclaration ||
+               node.declaration.type === TSESTree.AST_NODE_TYPES.TSEnumDeclaration;
+      }
+
+      return false;
+    };
+
+    const isCodeStatement = (node: TSESTree.Node): boolean => {
+      if (node.type === TSESTree.AST_NODE_TYPES.VariableDeclaration ||
+          node.type === TSESTree.AST_NODE_TYPES.FunctionDeclaration ||
+          node.type === TSESTree.AST_NODE_TYPES.ClassDeclaration ||
+          node.type === TSESTree.AST_NODE_TYPES.ExpressionStatement ||
+          node.type === TSESTree.AST_NODE_TYPES.ExportDefaultDeclaration) {
+        return true;
+      }
+
+      // Handle exported declarations - only treat as code if not exporting a type
+      if (node.type === TSESTree.AST_NODE_TYPES.ExportNamedDeclaration) {
+        if (!node.declaration) {
+          // Export specifiers like `export { foo }`
+          return true;
+        }
+
+        // If exporting a type declaration, don't treat as code
+        return !(node.declaration.type === TSESTree.AST_NODE_TYPES.TSInterfaceDeclaration ||
+                node.declaration.type === TSESTree.AST_NODE_TYPES.TSTypeAliasDeclaration ||
+                node.declaration.type === TSESTree.AST_NODE_TYPES.TSEnumDeclaration);
+      }
+
+      return false;
+    };
 
     return {
       Program: (node) => {
