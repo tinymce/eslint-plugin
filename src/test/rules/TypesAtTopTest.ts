@@ -107,7 +107,16 @@ ruleTester.run('types-at-top', typesAtTop, {
         value: string;
       }
       `,
-      errors: [{ messageId: 'typeNotAtTop' }]
+      errors: [{ messageId: 'typeNotAtTop' }],
+      output: `
+      import { Something } from 'somewhere';
+
+      interface MyInterface {
+        value: string;
+      }
+
+      const myVariable = 'test';
+      `
     },
     {
       code: `
@@ -119,7 +128,16 @@ ruleTester.run('types-at-top', typesAtTop, {
 
       type MyType = string;
       `,
-      errors: [{ messageId: 'typeNotAtTop' }]
+      errors: [{ messageId: 'typeNotAtTop' }],
+      output: `
+      import { A } from 'a';
+
+      type MyType = string;
+
+      function myFunction() {
+        return 'hello';
+      }
+      `
     },
     {
       code: `
@@ -140,7 +158,22 @@ ruleTester.run('types-at-top', typesAtTop, {
       errors: [
         { messageId: 'typeNotAtTop' },
         { messageId: 'typeNotAtTop' }
-      ]
+      ],
+      output: `
+      import { Test } from 'test';
+
+      interface TestInterface {
+        prop: string;
+      }
+
+      enum TestEnum {
+        A, B
+      }
+
+      const first = 'code';
+
+      const second = 'more code';
+      `
     },
     {
       code: `
@@ -152,7 +185,16 @@ ruleTester.run('types-at-top', typesAtTop, {
         setting: boolean;
       }
       `,
-      errors: [{ messageId: 'typeNotAtTop' }]
+      errors: [{ messageId: 'typeNotAtTop' }],
+      output: `
+      import { Utils } from 'utils';
+
+      interface Config {
+        setting: boolean;
+      }
+
+      export const value = 'exported';
+      `
     },
     {
       code: `
@@ -174,7 +216,22 @@ ruleTester.run('types-at-top', typesAtTop, {
         { messageId: 'typeNotAtTop' },
         { messageId: 'typeNotAtTop' },
         { messageId: 'typeNotAtTop' }
-      ]
+      ],
+      output: `
+      import { Utils } from 'utils';
+
+      export interface Config {
+        setting: boolean;
+      }
+
+      export type MyType = string;
+
+      export enum Status {
+        ACTIVE, INACTIVE
+      }
+
+      export const value = 'exported code';
+      `
     }
   ]
 });

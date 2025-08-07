@@ -15,13 +15,11 @@ export const typesAtTop = createRule({
     messages: {
       typeNotAtTop: 'Type declarations (interfaces, types, enums) should be placed at the top of the file below imports.',
     },
-    schema: []
+    schema: [],
+    fixable: 'code'
   },
   create: (context) => {
-    let lastImportLine = 0;
-    let firstTypeDeclarationLine = Infinity;
-    let hasNonTypeCode = false;
-    let firstNonTypeCodeLine = 0;
+    const sourceCode = context.getSourceCode();
 
     const isTypeDeclaration = (node: TSESTree.Node): boolean => {
       if (node.type === TSESTree.AST_NODE_TYPES.TSInterfaceDeclaration ||
@@ -68,34 +66,89 @@ export const typesAtTop = createRule({
     return {
       Program: (node) => {
         const body = node.body;
+        let lastImportLine = 0;
+        const typeDeclarations: TSESTree.Node[] = [];
+        const codeStatements: TSESTree.Node[] = [];
 
-        // Find the last import statement
+        // Find the last import statement and collect declarations
         for (const statement of body) {
           if (statement.type === TSESTree.AST_NODE_TYPES.ImportDeclaration) {
             lastImportLine = Math.max(lastImportLine, statement.loc?.end.line || 0);
+          } else if (isTypeDeclaration(statement)) {
+            typeDeclarations.push(statement);
+          } else if (isCodeStatement(statement)) {
+            codeStatements.push(statement);
           }
         }
 
-        // Check the order of declarations
-        for (const statement of body) {
-          const currentLine = statement.loc?.start.line || 0;
+        // Check if types are misplaced and report with fixes
+        const misplacedTypes: TSESTree.Node[] = [];
 
-          if (isTypeDeclaration(statement)) {
-            firstTypeDeclarationLine = Math.min(firstTypeDeclarationLine, currentLine);
+        for (const typeDecl of typeDeclarations) {
+          const typeLine = typeDecl.loc?.start.line || 0;
 
-            // Check if there's code before this type declaration (after imports)
-            if (hasNonTypeCode && currentLine > firstNonTypeCodeLine) {
-              context.report({
-                node: statement,
-                messageId: 'typeNotAtTop'
-              });
-            }
-          } else if (isCodeStatement(statement) && currentLine > lastImportLine) {
-            if (!hasNonTypeCode) {
-              hasNonTypeCode = true;
-              firstNonTypeCodeLine = currentLine;
-            }
+          // Check if there's any code statement before this type (after imports)
+          const hasCodeBefore = codeStatements.some((codeStmt) => {
+            const codeLine = codeStmt.loc?.start.line || 0;
+            return codeLine > lastImportLine && codeLine < typeLine;
+          });
+
+          if (hasCodeBefore) {
+            misplacedTypes.push(typeDecl);
           }
+        }
+
+        // If we have misplaced types, we need to fix them all together
+        if (misplacedTypes.length > 0) {
+          // Report each misplaced type, but only provide a fix for the first one
+          // The fix will move all misplaced types together
+          misplacedTypes.forEach((typeDecl, index) => {
+            context.report({
+              node: typeDecl,
+              messageId: 'typeNotAtTop',
+              fix: index === 0 ? (fixer) => {
+                // Find the position to insert types (after last import or at the beginning)
+                let insertPosition: number;
+                const lastImportNode = body
+                  .filter((stmt) => stmt.type === TSESTree.AST_NODE_TYPES.ImportDeclaration)
+                  .pop();
+
+                if (lastImportNode && lastImportNode.range) {
+                  insertPosition = lastImportNode.range[1];
+                  // Find the end of the line (including newline)
+                  const textAfter = sourceCode.text.slice(insertPosition);
+                  const newlineMatch = textAfter.match(/\r?\n/);
+                  if (newlineMatch && newlineMatch.index !== undefined) {
+                    insertPosition += newlineMatch.index + newlineMatch[0].length;
+                  }
+                } else {
+                  insertPosition = 0;
+                }
+
+                // Sort types by their original line numbers to maintain order
+                const sortedTypes = [ ...misplacedTypes ].sort((a, b) =>
+                  (a.loc?.start.line || 0) - (b.loc?.start.line || 0)
+                );
+
+                // Collect all misplaced type texts preserving original indentation
+                const typesText = sortedTypes.map((typeNode) =>
+                  sourceCode.getText(typeNode)
+                ).join('\n\n');
+
+                // Create the insertion text
+                const insertText = `\n${typesText}\n`;
+
+                const fixes = [
+                  // Insert all types at the correct position
+                  fixer.insertTextAfterRange([ insertPosition, insertPosition ], insertText),
+                  // Remove all misplaced types from their original positions
+                  ...misplacedTypes.map((typeNode) => fixer.remove(typeNode))
+                ];
+
+                return fixes;
+              } : undefined
+            });
+          });
         }
       }
     };
