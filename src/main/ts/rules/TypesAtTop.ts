@@ -100,55 +100,109 @@ export const typesAtTop = createRule({
 
         // If we have misplaced types, we need to fix them all together
         if (misplacedTypes.length > 0) {
-          // Report each misplaced type, but only provide a fix for the first one
-          // The fix will move all misplaced types together
-          misplacedTypes.forEach((typeDecl, index) => {
-            context.report({
-              node: typeDecl,
-              messageId: 'typeNotAtTop',
-              fix: index === 0 ? (fixer) => {
-                // Find the position to insert types (after last import or at the beginning)
-                let insertPosition: number;
-                const lastImportNode = body
-                  .filter((stmt) => stmt.type === TSESTree.AST_NODE_TYPES.ImportDeclaration)
-                  .pop();
+          // Report all misplaced types with a single fix for the first one
+          context.report({
+            node: misplacedTypes[0],
+            messageId: 'typeNotAtTop',
+            fix: (fixer) => {
+              // Get the full source text
+              const fullText = sourceCode.getText();
 
-                if (lastImportNode && lastImportNode.range) {
-                  insertPosition = lastImportNode.range[1];
-                  // Find the end of the line (including newline)
-                  const textAfter = sourceCode.text.slice(insertPosition);
-                  const newlineMatch = textAfter.match(/\r?\n/);
-                  if (newlineMatch && newlineMatch.index !== undefined) {
-                    insertPosition += newlineMatch.index + newlineMatch[0].length;
-                  }
-                } else {
-                  insertPosition = 0;
+              // Find the position to insert types (after last import or at the beginning)
+              let insertPosition: number;
+              const lastImportNode = body
+                .filter((stmt) => stmt.type === TSESTree.AST_NODE_TYPES.ImportDeclaration)
+                .pop();
+
+              if (lastImportNode && lastImportNode.range) {
+                insertPosition = lastImportNode.range[1];
+                // Find the end of the line (including newline)
+                const textAfter = fullText.slice(insertPosition);
+                const newlineMatch = textAfter.match(/\r?\n/);
+                if (newlineMatch && newlineMatch.index !== undefined) {
+                  insertPosition += newlineMatch.index + newlineMatch[0].length;
+                }
+              } else {
+                insertPosition = 0;
+              }
+
+              // Sort types by their original line numbers to maintain order
+              const sortedTypes = [ ...misplacedTypes ].sort((a, b) =>
+                (a.loc?.start.line || 0) - (b.loc?.start.line || 0)
+              );
+
+              // Extract type text preserving indentation
+              const extractedTypes = sortedTypes.map((typeNode) =>
+                sourceCode.getText(typeNode)
+              );
+
+              // Create the insertion text - types with empty line between each
+              const typeText = extractedTypes.join('\n\n');
+
+              // Remove the types from their original locations
+              let modifiedText = fullText;
+
+              // Process in reverse order to avoid position shifts
+              const reversedTypes = [ ...sortedTypes ].reverse();
+              for (const typeNode of reversedTypes) {
+                if (!typeNode.range) {
+                  continue;
                 }
 
-                // Sort types by their original line numbers to maintain order
-                const sortedTypes = [ ...misplacedTypes ].sort((a, b) =>
-                  (a.loc?.start.line || 0) - (b.loc?.start.line || 0)
-                );
+                const nodeStart = typeNode.range[0];
+                const nodeEnd = typeNode.range[1];
 
-                // Collect all misplaced type texts preserving original indentation
-                const typesText = sortedTypes.map((typeNode) =>
-                  sourceCode.getText(typeNode)
-                ).join('\n\n');
+                // Find the line boundaries for clean removal
+                let removeStart = nodeStart;
+                let removeEnd = nodeEnd;
 
-                // Create the insertion text
-                const insertText = `\n${typesText}\n`;
+                // Look backwards to find start of line (including indentation)
+                while (removeStart > 0 && modifiedText[removeStart - 1] !== '\n') {
+                  removeStart--;
+                }
 
-                const fixes = [
-                  // Insert all types at the correct position
-                  fixer.insertTextAfterRange([ insertPosition, insertPosition ], insertText),
-                  // Remove all misplaced types from their original positions
-                  ...misplacedTypes.map((typeNode) => fixer.remove(typeNode))
-                ];
+                // Look forwards to include the trailing newline
+                if (removeEnd < modifiedText.length && modifiedText[removeEnd] === '\n') {
+                  removeEnd++;
+                }
 
-                return fixes;
-              } : undefined
-            });
+                // Remove this section
+                modifiedText = modifiedText.slice(0, removeStart) + modifiedText.slice(removeEnd);
+
+                // Update insert position if it was after the removed content
+                if (insertPosition > removeStart) {
+                  insertPosition -= (removeEnd - removeStart);
+                }
+              }
+
+              // Insert the types at the correct position
+              const beforeInsert = modifiedText.slice(0, insertPosition);
+              const afterInsert = modifiedText.slice(insertPosition);
+
+              // Ensure proper spacing: single empty line before types, single empty line after
+              let cleanAfter = afterInsert;
+
+              // Remove any extra leading newlines from after text and ensure exactly one
+              cleanAfter = cleanAfter.replace(/^\n+/, '\n');
+
+              // Construct final text
+              let finalText = beforeInsert + '\n' + typeText + '\n' + cleanAfter;
+
+              // Clean up any trailing whitespace at the very end of the file
+              finalText = finalText.replace(/\s+$/, '');
+
+              // Return the fix
+              return fixer.replaceTextRange([ 0, fullText.length ], finalText);
+            }
           });
+
+          // Report additional types without fixes to show all errors
+          for (let i = 1; i < misplacedTypes.length; i++) {
+            context.report({
+              node: misplacedTypes[i],
+              messageId: 'typeNotAtTop'
+            });
+          }
         }
       }
     };
