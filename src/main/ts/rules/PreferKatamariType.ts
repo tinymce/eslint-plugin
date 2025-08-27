@@ -25,6 +25,13 @@ type MessageIds = 'preferTypeString' | 'preferTypeNumber' | 'preferTypeBoolean' 
                  'negatedPreferTypeString' | 'negatedPreferTypeNumber' | 'negatedPreferTypeBoolean' | 'negatedPreferTypeFunction' |
                  'negatedPreferTypeObject' | 'negatedPreferTypeNull' | 'negatedPreferTypeUndefined';
 
+interface TypeCheckConfig {
+  func: string;
+  messageId: MessageIds;
+  negatedMessageId: MessageIds;
+  optionKey: keyof Options;
+}
+
 export const preferType = createRule<[Options], MessageIds>({
   name: 'prefer-katamari-type',
   defaultOptions: [{
@@ -102,7 +109,19 @@ export const preferType = createRule<[Options], MessageIds>({
     const modulePath = '@ephox/katamari';
     const sourceCode = context.sourceCode;
 
-    const report = (node: TSESTree.Node, messageId: MessageIds, data: Record<string, string>, optionKey: keyof typeof options, replacement: string) => {
+    // Type check configurations for typeof checks
+    const typeofChecks: Record<string, TypeCheckConfig> = {
+      string: { func: 'isString', messageId: 'preferTypeString', negatedMessageId: 'negatedPreferTypeString', optionKey: 'string' },
+      number: { func: 'isNumber', messageId: 'preferTypeNumber', negatedMessageId: 'negatedPreferTypeNumber', optionKey: 'number' },
+      boolean: { func: 'isBoolean', messageId: 'preferTypeBoolean', negatedMessageId: 'negatedPreferTypeBoolean', optionKey: 'boolean' },
+      function: { func: 'isFunction', messageId: 'preferTypeFunction', negatedMessageId: 'negatedPreferTypeFunction', optionKey: 'function' },
+      object: { func: 'isObject', messageId: 'preferTypeObject', negatedMessageId: 'negatedPreferTypeObject', optionKey: 'object' }
+    };
+
+    /**
+     * Report a violation if the option is enabled
+     */
+    const report = (node: TSESTree.Node, messageId: MessageIds, data: Record<string, string>, optionKey: keyof Options, replacement: string) => {
       if (options[optionKey] === true) {
         context.report({
           node,
@@ -117,6 +136,12 @@ export const preferType = createRule<[Options], MessageIds>({
      * Get the variable name from a node (handles complex expressions)
      */
     const getVariableName = (node: TSESTree.Node): string => sourceCode.getText(node);
+
+    /**
+     * Check if node is a simple identifier or member expression
+     */
+    const isSimpleVariable = (node: TSESTree.Node): boolean =>
+      node.type === AST_NODE_TYPES.Identifier || node.type === AST_NODE_TYPES.MemberExpression;
 
     /**
      * Check if there's already a Type import in the file
@@ -190,40 +215,142 @@ export const preferType = createRule<[Options], MessageIds>({
       }
     };
 
+    /**
+     * Handle typeof checks (e.g., typeof foo === 'string')
+     */
+    const handleTypeofCheck = (node: TSESTree.BinaryExpression) => {
+      const { left, operator, right } = node;
+
+      if (left.type === AST_NODE_TYPES.UnaryExpression && left.operator === 'typeof' &&
+          (operator === '===' || operator === '!==' || operator === '==' || operator === '!=') &&
+          right.type === AST_NODE_TYPES.Literal && typeof right.value === 'string') {
+
+        // Skip complex expressions that are not simple identifiers or member expressions
+        if (!isSimpleVariable(left.argument)) {
+          return;
+        }
+
+        const variable = getVariableName(left.argument);
+        const typeValue = right.value;
+        const isNegated = operator === '!==' || operator === '!=';
+        const config = typeofChecks[typeValue];
+
+        if (config) {
+          const messageId = isNegated ? config.negatedMessageId : config.messageId;
+          const replacement = isNegated ? `!${importName}.${config.func}(${variable})` : `${importName}.${config.func}(${variable})`;
+          report(node, messageId, { variable }, config.optionKey, replacement);
+        }
+      }
+    };
+
+    /**
+     * Handle null checks (e.g., foo === null, foo !== null)
+     */
+    const handleNullCheck = (node: TSESTree.BinaryExpression) => {
+      const { left, operator, right } = node;
+
+      if (((isSimpleVariable(left) && right.type === AST_NODE_TYPES.Literal && right.value === null) ||
+           (left.type === AST_NODE_TYPES.Literal && left.value === null && isSimpleVariable(right))) &&
+          (operator === '===' || operator === '!==')) {
+
+        const variable = left.type === AST_NODE_TYPES.Literal ? getVariableName(right) : getVariableName(left);
+        const isNegated = operator === '!==';
+        const messageId = isNegated ? 'negatedPreferTypeNull' : 'preferTypeNull';
+        const replacement = isNegated ? `!${importName}.isNull(${variable})` : `${importName}.isNull(${variable})`;
+
+        report(node, messageId, { variable }, 'null', replacement);
+      }
+    };
+
+    /**
+     * Handle undefined checks (e.g., foo === undefined, foo !== undefined)
+     */
+    const handleUndefinedCheck = (node: TSESTree.BinaryExpression) => {
+      const { left, operator, right } = node;
+
+      if (((isSimpleVariable(left) && right.type === AST_NODE_TYPES.Identifier && right.name === 'undefined') ||
+           (left.type === AST_NODE_TYPES.Identifier && left.name === 'undefined' && isSimpleVariable(right))) &&
+          (operator === '===' || operator === '!==')) {
+
+        const variable = (left.type === AST_NODE_TYPES.Identifier && left.name === 'undefined') ? getVariableName(right) : getVariableName(left);
+        const isNegated = operator === '!==';
+        const messageId = isNegated ? 'negatedPreferTypeUndefined' : 'preferTypeUndefined';
+        const replacement = isNegated ? `!${importName}.isUndefined(${variable})` : `${importName}.isUndefined(${variable})`;
+
+        report(node, messageId, { variable }, 'undefined', replacement);
+      }
+    };
+
+    /**
+     * Handle nullable checks (e.g., foo == null, foo != null)
+     */
+    const handleNullableCheck = (node: TSESTree.BinaryExpression) => {
+      const { left, operator, right } = node;
+
+      if (((isSimpleVariable(left) && right.type === AST_NODE_TYPES.Literal && right.value === null) ||
+           (left.type === AST_NODE_TYPES.Literal && left.value === null && isSimpleVariable(right))) &&
+          (operator === '==' || operator === '!=')) {
+
+        const variable = left.type === AST_NODE_TYPES.Literal ? getVariableName(right) : getVariableName(left);
+
+        if (operator === '==') {
+          const replacement = `${importName}.isNullable(${variable})`;
+          report(node, 'preferTypeNullable', { variable }, 'nullable', replacement);
+        } else if (operator === '!=') {
+          const replacement = `${importName}.isNonNullable(${variable})`;
+          report(node, 'preferTypeNonNullable', { variable }, 'nonNullable', replacement);
+        }
+      }
+    };
+
+    /**
+     * Check if a logical expression is the strict non-nullable pattern
+     */
+    const isStrictNonNullablePattern = (node: TSESTree.LogicalExpression): { variable: string } | null => {
+      if (node.operator !== '&&' ||
+          node.left.type !== AST_NODE_TYPES.BinaryExpression || node.left.operator !== '!==' ||
+          node.right.type !== AST_NODE_TYPES.BinaryExpression || node.right.operator !== '!==') {
+        return null;
+      }
+
+      let variable1: string | null = null;
+      let variable2: string | null = null;
+      let hasNullCheck = false;
+      let hasUndefinedCheck = false;
+
+      // Check left side: foo !== null
+      if (node.left.right.type === AST_NODE_TYPES.Literal && node.left.right.value === null) {
+        variable1 = getVariableName(node.left.left);
+        hasNullCheck = true;
+      } else if (node.left.left.type === AST_NODE_TYPES.Literal && node.left.left.value === null) {
+        variable1 = getVariableName(node.left.right);
+        hasNullCheck = true;
+      }
+
+      // Check right side: foo !== undefined
+      if (node.right.right.type === AST_NODE_TYPES.Identifier && node.right.right.name === 'undefined') {
+        variable2 = getVariableName(node.right.left);
+        hasUndefinedCheck = true;
+      } else if (node.right.left.type === AST_NODE_TYPES.Identifier && node.right.left.name === 'undefined') {
+        variable2 = getVariableName(node.right.right);
+        hasUndefinedCheck = true;
+      }
+
+      // If both checks are on the same variable and cover null and undefined
+      if (hasNullCheck && hasUndefinedCheck && variable1 === variable2 && variable1) {
+        return { variable: variable1 };
+      }
+
+      return null;
+    };
+
     return {
       LogicalExpression: (node) => {
-        // foo !== null && foo !== undefined -> Type.isNonNullable(foo)
-        // Handle this with higher priority to avoid conflicts with individual binary expressions
-        if (node.operator === '&&' &&
-          node.left.type === AST_NODE_TYPES.BinaryExpression && node.left.operator === '!==' &&
-          node.right.type === AST_NODE_TYPES.BinaryExpression && node.right.operator === '!==') {
-
-          let variable1; let variable2; let isNullCheck = false; let isUndefinedCheck = false;
-
-          // Check left side: foo !== null
-          if (node.left.right.type === AST_NODE_TYPES.Literal && node.left.right.value === null) {
-            variable1 = getVariableName(node.left.left);
-            isNullCheck = true;
-          } else if (node.left.left.type === AST_NODE_TYPES.Literal && node.left.left.value === null) {
-            variable1 = getVariableName(node.left.right);
-            isNullCheck = true;
-          }
-
-          // Check right side: foo !== undefined
-          if (node.right.right.type === AST_NODE_TYPES.Identifier && node.right.right.name === 'undefined') {
-            variable2 = getVariableName(node.right.left);
-            isUndefinedCheck = true;
-          } else if (node.right.left.type === AST_NODE_TYPES.Identifier && node.right.left.name === 'undefined') {
-            variable2 = getVariableName(node.right.right);
-            isUndefinedCheck = true;
-          }
-
-          // If both checks are on the same variable and cover null and undefined
-          if (isNullCheck && isUndefinedCheck && variable1 === variable2 && variable1) {
-            const replacement = `${importName}.isNonNullable(${variable1})`;
-            report(node, 'preferTypeNonNullableStrict', { variable: variable1 }, 'nonNullableStrict', replacement);
-            return; // Don't process child binary expressions
-          }
+        // Handle foo !== null && foo !== undefined -> Type.isNonNullable(foo)
+        const pattern = isStrictNonNullablePattern(node);
+        if (pattern) {
+          const replacement = `${importName}.isNonNullable(${pattern.variable})`;
+          report(node, 'preferTypeNonNullableStrict', { variable: pattern.variable }, 'nonNullableStrict', replacement);
         }
       },
 
@@ -231,98 +358,16 @@ export const preferType = createRule<[Options], MessageIds>({
         // Skip if this binary expression is part of a logical expression we've already handled
         if (node.parent && node.parent.type === AST_NODE_TYPES.LogicalExpression) {
           const parent = node.parent;
-          if (parent.operator === '&&' &&
-            parent.left.type === AST_NODE_TYPES.BinaryExpression && parent.left.operator === '!==' &&
-            parent.right.type === AST_NODE_TYPES.BinaryExpression && parent.right.operator === '!==') {
-            // Let the LogicalExpression handler deal with this
-            return;
-          }
-        }
-        const { left, operator, right } = node;
-
-        // typeof checks: typeof foo === 'string', typeof foo !== 'string'
-        if (left.type === AST_NODE_TYPES.UnaryExpression && left.operator === 'typeof' &&
-          (operator === '===' || operator === '!==' || operator === '==' || operator === '!=') &&
-          right.type === AST_NODE_TYPES.Literal && typeof right.value === 'string') {
-
-          // Skip complex expressions that are not simple identifiers or member expressions
-          if (left.argument.type !== AST_NODE_TYPES.Identifier && left.argument.type !== AST_NODE_TYPES.MemberExpression) {
-            return;
-          }
-
-          const variable = getVariableName(left.argument);
-          const typeValue = right.value;
-          const isNegated = operator === '!==' || operator === '!=';
-
-          type MessageId = 'preferTypeString' | 'preferTypeNumber' | 'preferTypeBoolean' | 'preferTypeFunction' | 'preferTypeObject' |
-            'negatedPreferTypeString' | 'negatedPreferTypeNumber' | 'negatedPreferTypeBoolean' | 'negatedPreferTypeFunction' | 'negatedPreferTypeObject';
-
-          const typeMap: Record<string, { func: string; messageId: MessageId; optionKey: keyof typeof options }> = {
-            string: { func: 'isString', messageId: isNegated ? 'negatedPreferTypeString' : 'preferTypeString', optionKey: 'string' },
-            number: { func: 'isNumber', messageId: isNegated ? 'negatedPreferTypeNumber' : 'preferTypeNumber', optionKey: 'number' },
-            boolean: { func: 'isBoolean', messageId: isNegated ? 'negatedPreferTypeBoolean' : 'preferTypeBoolean', optionKey: 'boolean' },
-            function: { func: 'isFunction', messageId: isNegated ? 'negatedPreferTypeFunction' : 'preferTypeFunction', optionKey: 'function' },
-            object: { func: 'isObject', messageId: isNegated ? 'negatedPreferTypeObject' : 'preferTypeObject', optionKey: 'object' }
-          };
-
-          if (typeMap[typeValue]) {
-            const { func, messageId, optionKey } = typeMap[typeValue];
-            const replacement = isNegated ? `!${importName}.${func}(${variable})` : `${importName}.${func}(${variable})`;
-
-            report(node, messageId, { variable }, optionKey, replacement);
+          if (isStrictNonNullablePattern(parent)) {
+            return; // Let the LogicalExpression handler deal with this
           }
         }
 
-        // null checks: foo === null, foo !== null
-        if (((left.type === AST_NODE_TYPES.Identifier || left.type === AST_NODE_TYPES.MemberExpression) &&
-          right.type === AST_NODE_TYPES.Literal && right.value === null) ||
-          (left.type === AST_NODE_TYPES.Literal && left.value === null &&
-            (right.type === AST_NODE_TYPES.Identifier || right.type === AST_NODE_TYPES.MemberExpression))) {
-
-          const variable = left.type === AST_NODE_TYPES.Literal ? getVariableName(right) : getVariableName(left);
-          const isNegated = operator === '!==';
-
-          if (operator === '===' || operator === '!==') {
-            const messageId = isNegated ? 'negatedPreferTypeNull' : 'preferTypeNull';
-            const replacement = isNegated ? `!${importName}.isNull(${variable})` : `${importName}.isNull(${variable})`;
-
-            report(node, messageId, { variable }, 'null', replacement);
-          }
-        }
-
-        // undefined checks: foo === undefined, foo !== undefined
-        if (((left.type === AST_NODE_TYPES.Identifier || left.type === AST_NODE_TYPES.MemberExpression) &&
-          right.type === AST_NODE_TYPES.Identifier && right.name === 'undefined') ||
-          (left.type === AST_NODE_TYPES.Identifier && left.name === 'undefined' &&
-            (right.type === AST_NODE_TYPES.Identifier || right.type === AST_NODE_TYPES.MemberExpression))) {
-
-          const variable = (left.type === AST_NODE_TYPES.Identifier && left.name === 'undefined') ? getVariableName(right) : getVariableName(left);
-          const isNegated = operator === '!==';
-
-          if (operator === '===' || operator === '!==') {
-            const messageId = isNegated ? 'negatedPreferTypeUndefined' : 'preferTypeUndefined';
-            const replacement = isNegated ? `!${importName}.isUndefined(${variable})` : `${importName}.isUndefined(${variable})`;
-
-            report(node, messageId, { variable }, 'undefined', replacement);
-          }
-        }
-
-        // nullable checks: foo == null, foo != null
-        if (((left.type === AST_NODE_TYPES.Identifier || left.type === AST_NODE_TYPES.MemberExpression) &&
-          right.type === AST_NODE_TYPES.Literal && right.value === null) ||
-          (left.type === AST_NODE_TYPES.Literal && left.value === null &&
-            (right.type === AST_NODE_TYPES.Identifier || right.type === AST_NODE_TYPES.MemberExpression))) {
-
-          const variable = left.type === AST_NODE_TYPES.Literal ? getVariableName(right) : getVariableName(left);
-
-          if (operator === '==') {
-            const replacement = `${importName}.isNullable(${variable})`;
-            report(node, 'preferTypeNullable', { variable }, 'nullable', replacement);
-          } else if (operator === '!=') {
-            const replacement = `${importName}.isNonNullable(${variable})`;
-            report(node, 'preferTypeNonNullable', { variable }, 'nonNullable', replacement);
-          }
-        }
+        // Handle different types of binary expressions
+        handleTypeofCheck(node);
+        handleNullCheck(node);
+        handleUndefinedCheck(node);
+        handleNullableCheck(node);
       }
     };
   }
