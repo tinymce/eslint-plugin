@@ -40,6 +40,52 @@ ruleTester.run('prefer-katamari-type', preferType, {
         console.log('complex expression');
       }
       `
+    },
+    // Test configurable options - these should not trigger when disabled
+    {
+      code: 'typeof value === "string"',
+      options: [{ string: false }]
+    },
+    {
+      code: 'typeof value === "number"',
+      options: [{ number: false }]
+    },
+    {
+      code: 'typeof value === "boolean"',
+      options: [{ boolean: false }]
+    },
+    {
+      code: 'typeof value === "function"',
+      options: [{ function: false }]
+    },
+    {
+      code: 'value === null',
+      options: [{ null: false }]
+    },
+    {
+      code: 'value === undefined',
+      options: [{ undefined: false }]
+    },
+    {
+      code: 'value == null',
+      options: [{ nullable: false }]
+    },
+    {
+      code: 'value != null',
+      options: [{ nonNullable: false }]
+    },
+    // Test that null and undefined checks are ignored by default
+    {
+      code: 'value === null'
+    },
+    {
+      code: 'value !== null'
+    },
+    {
+      code: 'value === undefined'
+    },
+    {
+      code: 'value !== undefined'
     }
   ],
   invalid: [
@@ -133,6 +179,7 @@ if (!Type.isString(value)) {
         return 'null value';
       }
       `,
+      options: [{ null: true }],
       errors: [{ messageId: 'preferTypeNull' }],
       output: `
       import { Type } from '@ephox/katamari';
@@ -147,6 +194,7 @@ if (Type.isNull(value)) {
         return value.toString();
       }
       `,
+      options: [{ null: true }],
       errors: [{ messageId: 'negatedPreferTypeNull' }],
       output: `
       import { Type } from '@ephox/katamari';
@@ -161,6 +209,7 @@ if (!Type.isNull(value)) {
         return 'undefined value';
       }
       `,
+      options: [{ undefined: true }],
       errors: [{ messageId: 'preferTypeUndefined' }],
       output: `
       import { Type } from '@ephox/katamari';
@@ -175,6 +224,7 @@ if (Type.isUndefined(value)) {
         return value.toString();
       }
       `,
+      options: [{ undefined: true }],
       errors: [{ messageId: 'negatedPreferTypeUndefined' }],
       output: `
       import { Type } from '@ephox/katamari';
@@ -242,6 +292,21 @@ if (Type.isNonNullable(value)) {
     },
     {
       code: `
+      import { Arr } from '@ephox/katamari';
+      if (typeof value === 'string') {
+        console.log('already has import');
+      }
+      `,
+      errors: [{ messageId: 'preferTypeString' }],
+      output: `
+      import { Arr, Type } from '@ephox/katamari';
+      if (Type.isString(value)) {
+        console.log('already has import');
+      }
+      `
+    },
+    {
+      code: `
       import { Something } from '@other/package';
       if (typeof value === 'string') {
         console.log('has other imports');
@@ -271,6 +336,14 @@ const obj = { prop: 'value' };
         console.log('member expression');
       }
       `
+    },
+    // Test that explicit enable works even when other options are disabled
+    {
+      code: 'typeof value === "string"',
+      options: [{ string: true, number: false, boolean: false }],
+      errors: [{ messageId: 'preferTypeString' }],
+      output: `import { Type } from '@ephox/katamari';
+Type.isString(value)`
     }
   ]
 });

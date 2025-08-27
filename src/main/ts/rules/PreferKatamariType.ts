@@ -4,9 +4,41 @@ const createRule = ESLintUtils.RuleCreator(
   () => 'https://github.com/tinymce/eslint-plugin'
 );
 
-export const preferType = createRule({
+interface Options {
+  string?: boolean;
+  number?: boolean;
+  boolean?: boolean;
+  function?: boolean;
+  object?: boolean;
+  null?: boolean;
+  undefined?: boolean;
+  nullable?: boolean;
+  nonNullable?: boolean;
+  nonNullableStrict?: boolean;
+}
+
+/**
+ * Report a violation if the option is enabled
+ */
+type MessageIds = 'preferTypeString' | 'preferTypeNumber' | 'preferTypeBoolean' | 'preferTypeFunction' | 'preferTypeObject' |
+                 'preferTypeNull' | 'preferTypeUndefined' | 'preferTypeNullable' | 'preferTypeNonNullable' | 'preferTypeNonNullableStrict' |
+                 'negatedPreferTypeString' | 'negatedPreferTypeNumber' | 'negatedPreferTypeBoolean' | 'negatedPreferTypeFunction' |
+                 'negatedPreferTypeObject' | 'negatedPreferTypeNull' | 'negatedPreferTypeUndefined';
+
+export const preferType = createRule<[Options], MessageIds>({
   name: 'prefer-katamari-type',
-  defaultOptions: [],
+  defaultOptions: [{
+    string: true,
+    number: true,
+    boolean: true,
+    function: true,
+    object: true,
+    null: false,
+    undefined: false,
+    nullable: true,
+    nonNullable: true,
+    nonNullableStrict: true
+  }],
   meta: {
     type: 'suggestion',
     docs: {
@@ -15,20 +47,22 @@ export const preferType = createRule({
     fixable: 'code',
     hasSuggestions: true,
     schema: [
-      // {
-      //   type: "object",
-      //   properties: {
-      //     importName: {
-      //       type: "string",
-      //       description: "The name to use for Type imports (default: 'Type')"
-      //     },
-      //     modulePath: {
-      //       type: "string",
-      //       description: "The module path for Type imports (default: '@ephox/katamari')"
-      //     }
-      //   },
-      //   additionalProperties: false
-      // }
+      {
+        type: 'object',
+        properties: {
+          string: { type: 'boolean' },
+          number: { type: 'boolean' },
+          boolean: { type: 'boolean' },
+          function: { type: 'boolean' },
+          object: { type: 'boolean' },
+          null: { type: 'boolean' },
+          undefined: { type: 'boolean' },
+          nullable: { type: 'boolean' },
+          nonNullable: { type: 'boolean' },
+          nonNullableStrict: { type: 'boolean' }
+        },
+        additionalProperties: false
+      }
     ],
     messages: {
       preferTypeString: 'Use Type.isString({{variable}}) instead of typeof {{variable}} === \'string\'',
@@ -51,12 +85,33 @@ export const preferType = createRule({
     }
   },
   create: (context) => {
-    // const options = context.options[0] || {};
-    // const importName = options.importName || 'Type';
-    // const modulePath = options.modulePath || '@ephox/katamari';
+    const userOptions = context.options[0] || {};
+    const options = {
+      string: userOptions.string ?? true,
+      number: userOptions.number ?? true,
+      boolean: userOptions.boolean ?? true,
+      function: userOptions.function ?? true,
+      object: userOptions.object ?? true,
+      null: userOptions.null ?? false,
+      undefined: userOptions.undefined ?? false,
+      nullable: userOptions.nullable ?? true,
+      nonNullable: userOptions.nonNullable ?? true,
+      nonNullableStrict: userOptions.nonNullableStrict ?? true
+    };
     const importName = 'Type';
     const modulePath = '@ephox/katamari';
     const sourceCode = context.sourceCode;
+
+    const report = (node: TSESTree.Node, messageId: MessageIds, data: Record<string, string>, optionKey: keyof typeof options, replacement: string) => {
+      if (options[optionKey] === true) {
+        context.report({
+          node,
+          messageId,
+          data,
+          fix: createFix(node, replacement)
+        });
+      }
+    };
 
     /**
      * Get the variable name from a node (handles complex expressions)
@@ -94,6 +149,25 @@ export const preferType = createRule({
 
       const program = sourceCode.ast;
       const imports = program.body.filter((node) => node.type === AST_NODE_TYPES.ImportDeclaration);
+
+      // Check if there's already an import from the same module that we can merge with
+      const existingKatamariImport = imports.find((node) =>
+        node.type === AST_NODE_TYPES.ImportDeclaration &&
+        node.source.value === modulePath
+      );
+
+      if (existingKatamariImport) {
+        // Merge with existing import from the same module
+        const sourceText = sourceCode.getText(existingKatamariImport);
+        const updatedImport = sourceText.replace(
+          /import\s*{\s*([^}]*?)\s*}\s*from/,
+          (_match, existingImports) => {
+            const cleanImports = existingImports.trim();
+            return `import { ${cleanImports}, Type } from`;
+          }
+        );
+        return fixer.replaceText(existingKatamariImport, updatedImport);
+      }
 
       if (imports.length > 0) {
         // Insert after the last import
@@ -145,13 +219,9 @@ export const preferType = createRule({
           }
 
           // If both checks are on the same variable and cover null and undefined
-          if (isNullCheck && isUndefinedCheck && variable1 === variable2) {
-            context.report({
-              node,
-              messageId: 'preferTypeNonNullableStrict',
-              data: { variable: variable1 },
-              fix: createFix(node, `${importName}.isNonNullable(${variable1})`)
-            });
+          if (isNullCheck && isUndefinedCheck && variable1 === variable2 && variable1) {
+            const replacement = `${importName}.isNonNullable(${variable1})`;
+            report(node, 'preferTypeNonNullableStrict', { variable: variable1 }, 'nonNullableStrict', replacement);
             return; // Don't process child binary expressions
           }
         }
@@ -187,24 +257,19 @@ export const preferType = createRule({
           type MessageId = 'preferTypeString' | 'preferTypeNumber' | 'preferTypeBoolean' | 'preferTypeFunction' | 'preferTypeObject' |
             'negatedPreferTypeString' | 'negatedPreferTypeNumber' | 'negatedPreferTypeBoolean' | 'negatedPreferTypeFunction' | 'negatedPreferTypeObject';
 
-          const typeMap: Record<string, { func: string; messageId: MessageId }> = {
-            string: { func: 'isString', messageId: isNegated ? 'negatedPreferTypeString' : 'preferTypeString' },
-            number: { func: 'isNumber', messageId: isNegated ? 'negatedPreferTypeNumber' : 'preferTypeNumber' },
-            boolean: { func: 'isBoolean', messageId: isNegated ? 'negatedPreferTypeBoolean' : 'preferTypeBoolean' },
-            function: { func: 'isFunction', messageId: isNegated ? 'negatedPreferTypeFunction' : 'preferTypeFunction' },
-            object: { func: 'isObject', messageId: isNegated ? 'negatedPreferTypeObject' : 'preferTypeObject' }
+          const typeMap: Record<string, { func: string; messageId: MessageId; optionKey: keyof typeof options }> = {
+            string: { func: 'isString', messageId: isNegated ? 'negatedPreferTypeString' : 'preferTypeString', optionKey: 'string' },
+            number: { func: 'isNumber', messageId: isNegated ? 'negatedPreferTypeNumber' : 'preferTypeNumber', optionKey: 'number' },
+            boolean: { func: 'isBoolean', messageId: isNegated ? 'negatedPreferTypeBoolean' : 'preferTypeBoolean', optionKey: 'boolean' },
+            function: { func: 'isFunction', messageId: isNegated ? 'negatedPreferTypeFunction' : 'preferTypeFunction', optionKey: 'function' },
+            object: { func: 'isObject', messageId: isNegated ? 'negatedPreferTypeObject' : 'preferTypeObject', optionKey: 'object' }
           };
 
           if (typeMap[typeValue]) {
-            const { func, messageId } = typeMap[typeValue];
+            const { func, messageId, optionKey } = typeMap[typeValue];
             const replacement = isNegated ? `!${importName}.${func}(${variable})` : `${importName}.${func}(${variable})`;
 
-            context.report({
-              node,
-              messageId,
-              data: { variable },
-              fix: createFix(node, replacement)
-            });
+            report(node, messageId, { variable }, optionKey, replacement);
           }
         }
 
@@ -221,12 +286,7 @@ export const preferType = createRule({
             const messageId = isNegated ? 'negatedPreferTypeNull' : 'preferTypeNull';
             const replacement = isNegated ? `!${importName}.isNull(${variable})` : `${importName}.isNull(${variable})`;
 
-            context.report({
-              node,
-              messageId,
-              data: { variable },
-              fix: createFix(node, replacement)
-            });
+            report(node, messageId, { variable }, 'null', replacement);
           }
         }
 
@@ -243,12 +303,7 @@ export const preferType = createRule({
             const messageId = isNegated ? 'negatedPreferTypeUndefined' : 'preferTypeUndefined';
             const replacement = isNegated ? `!${importName}.isUndefined(${variable})` : `${importName}.isUndefined(${variable})`;
 
-            context.report({
-              node,
-              messageId,
-              data: { variable },
-              fix: createFix(node, replacement)
-            });
+            report(node, messageId, { variable }, 'undefined', replacement);
           }
         }
 
@@ -261,19 +316,11 @@ export const preferType = createRule({
           const variable = left.type === AST_NODE_TYPES.Literal ? getVariableName(right) : getVariableName(left);
 
           if (operator === '==') {
-            context.report({
-              node,
-              messageId: 'preferTypeNullable',
-              data: { variable },
-              fix: createFix(node, `${importName}.isNullable(${variable})`)
-            });
+            const replacement = `${importName}.isNullable(${variable})`;
+            report(node, 'preferTypeNullable', { variable }, 'nullable', replacement);
           } else if (operator === '!=') {
-            context.report({
-              node,
-              messageId: 'preferTypeNonNullable',
-              data: { variable },
-              fix: createFix(node, `${importName}.isNonNullable(${variable})`)
-            });
+            const replacement = `${importName}.isNonNullable(${variable})`;
+            report(node, 'preferTypeNonNullable', { variable }, 'nonNullable', replacement);
           }
         }
       }
