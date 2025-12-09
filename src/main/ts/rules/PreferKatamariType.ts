@@ -32,20 +32,22 @@ interface TypeCheckConfig {
   optionKey: keyof Options;
 }
 
+const DEFAULT_OPTIONS: [Options] = [{
+  string: true,
+  number: true,
+  boolean: true,
+  function: true,
+  object: true,
+  null: true,
+  undefined: true,
+  nullable: true,
+  nonNullable: true,
+  nonNullableStrict: true
+}];
+
 export const preferType = createRule<[Options], MessageIds>({
   name: 'prefer-katamari-type',
-  defaultOptions: [{
-    string: true,
-    number: true,
-    boolean: true,
-    function: true,
-    object: true,
-    null: false,
-    undefined: false,
-    nullable: true,
-    nonNullable: true,
-    nonNullableStrict: true
-  }],
+  defaultOptions: DEFAULT_OPTIONS,
   meta: {
     type: 'suggestion',
     docs: {
@@ -92,22 +94,16 @@ export const preferType = createRule<[Options], MessageIds>({
     }
   },
   create: (context) => {
-    const userOptions = context.options[0] || {};
+    const ctxOptions = context.options[0] ?? {};
     const options = {
-      string: userOptions.string ?? true,
-      number: userOptions.number ?? true,
-      boolean: userOptions.boolean ?? true,
-      function: userOptions.function ?? true,
-      object: userOptions.object ?? true,
-      null: userOptions.null ?? false,
-      undefined: userOptions.undefined ?? false,
-      nullable: userOptions.nullable ?? true,
-      nonNullable: userOptions.nonNullable ?? true,
-      nonNullableStrict: userOptions.nonNullableStrict ?? true
+      ...DEFAULT_OPTIONS[0],
+      ...ctxOptions
     };
+
     const importName = 'Type';
     const modulePath = '@ephox/katamari';
     const sourceCode = context.sourceCode;
+    let importFixAdded = false;
 
     // Type check configurations for typeof checks
     const typeofChecks: Record<string, TypeCheckConfig> = {
@@ -168,10 +164,11 @@ export const preferType = createRule<[Options], MessageIds>({
      * Generate import statement if needed
      */
     const generateImportFix = (fixer: TSESLint.RuleFixer): TSESLint.RuleFix | null => {
-      if (hasTypeImport()) {
+      if (importFixAdded || hasTypeImport()) {
         return null; // Return null instead of empty array when no fix is needed
       }
 
+      importFixAdded = true;
       const program = sourceCode.ast;
       const imports = program.body.filter((node) => node.type === AST_NODE_TYPES.ImportDeclaration);
 
@@ -216,22 +213,24 @@ export const preferType = createRule<[Options], MessageIds>({
     };
 
     /**
-     * Handle typeof checks (e.g., typeof foo === 'string')
+     * Handle typeof checks (e.g., typeof foo === 'string' or 'string' === typeof foo)
      */
     const handleTypeofCheck = (node: TSESTree.BinaryExpression) => {
       const { left, operator, right } = node;
 
-      if (left.type === AST_NODE_TYPES.UnaryExpression && left.operator === 'typeof' &&
-          (operator === '===' || operator === '!==' || operator === '==' || operator === '!=') &&
-          right.type === AST_NODE_TYPES.Literal && typeof right.value === 'string') {
-
-        // Skip complex expressions that are not simple identifiers or member expressions
-        if (!isSimpleVariable(left.argument)) {
+      // Helper to check typeof pattern
+      const checkTypeofPattern = (typeofNode: TSESTree.Node, literalNode: TSESTree.Node) => {
+        if (typeofNode.type !== AST_NODE_TYPES.UnaryExpression || typeofNode.operator !== 'typeof' ||
+            literalNode.type !== AST_NODE_TYPES.Literal || typeof literalNode.value !== 'string') {
           return;
         }
 
-        const variable = getVariableName(left.argument);
-        const typeValue = right.value;
+        if (!isSimpleVariable(typeofNode.argument)) {
+          return;
+        }
+
+        const variable = getVariableName(typeofNode.argument);
+        const typeValue = literalNode.value;
         const isNegated = operator === '!==' || operator === '!=';
         const config = typeofChecks[typeValue];
 
@@ -240,6 +239,13 @@ export const preferType = createRule<[Options], MessageIds>({
           const replacement = isNegated ? `!${importName}.${config.func}(${variable})` : `${importName}.${config.func}(${variable})`;
           report(node, messageId, { variable }, config.optionKey, replacement);
         }
+      };
+
+      // Check for: typeof value === 'string'
+      if ((operator === '===' || operator === '!==' || operator === '==' || operator === '!=')) {
+        checkTypeofPattern(left, right);
+        // Check for: 'string' === typeof value (reversed operands)
+        checkTypeofPattern(right, left);
       }
     };
 

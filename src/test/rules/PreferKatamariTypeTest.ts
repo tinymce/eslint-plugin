@@ -74,18 +74,13 @@ ruleTester.run('prefer-katamari-type', preferType, {
       code: 'value != null',
       options: [{ nonNullable: false }]
     },
-    // Test that null and undefined checks are ignored by default
     {
-      code: 'value === null'
+      code: 'value !== null',
+      options: [{ null: false }]
     },
     {
-      code: 'value !== null'
-    },
-    {
-      code: 'value === undefined'
-    },
-    {
-      code: 'value !== undefined'
+      code: 'value !== undefined',
+      options: [{ undefined: false }]
     }
   ],
   invalid: [
@@ -175,11 +170,66 @@ if (!Type.isString(value)) {
     },
     {
       code: `
+      if (typeof count !== 'number') {
+        throw new Error('Expected number');
+      }
+      `,
+      errors: [{ messageId: 'negatedPreferTypeNumber' }],
+      output: `
+      import { Type } from '@ephox/katamari';
+if (!Type.isNumber(count)) {
+        throw new Error('Expected number');
+      }
+      `
+    },
+    {
+      code: `
+      if (typeof flag !== 'boolean') {
+        throw new Error('Expected boolean');
+      }
+      `,
+      errors: [{ messageId: 'negatedPreferTypeBoolean' }],
+      output: `
+      import { Type } from '@ephox/katamari';
+if (!Type.isBoolean(flag)) {
+        throw new Error('Expected boolean');
+      }
+      `
+    },
+    {
+      code: `
+      if (typeof callback !== 'function') {
+        throw new Error('Expected function');
+      }
+      `,
+      errors: [{ messageId: 'negatedPreferTypeFunction' }],
+      output: `
+      import { Type } from '@ephox/katamari';
+if (!Type.isFunction(callback)) {
+        throw new Error('Expected function');
+      }
+      `
+    },
+    {
+      code: `
+      if (typeof obj !== 'object') {
+        throw new Error('Expected object');
+      }
+      `,
+      errors: [{ messageId: 'negatedPreferTypeObject' }],
+      output: `
+      import { Type } from '@ephox/katamari';
+if (!Type.isObject(obj)) {
+        throw new Error('Expected object');
+      }
+      `
+    },
+    {
+      code: `
       if (value === null) {
         return 'null value';
       }
       `,
-      options: [{ null: true }],
       errors: [{ messageId: 'preferTypeNull' }],
       output: `
       import { Type } from '@ephox/katamari';
@@ -194,7 +244,6 @@ if (Type.isNull(value)) {
         return value.toString();
       }
       `,
-      options: [{ null: true }],
       errors: [{ messageId: 'negatedPreferTypeNull' }],
       output: `
       import { Type } from '@ephox/katamari';
@@ -209,7 +258,6 @@ if (!Type.isNull(value)) {
         return 'undefined value';
       }
       `,
-      options: [{ undefined: true }],
       errors: [{ messageId: 'preferTypeUndefined' }],
       output: `
       import { Type } from '@ephox/katamari';
@@ -224,7 +272,6 @@ if (Type.isUndefined(value)) {
         return value.toString();
       }
       `,
-      options: [{ undefined: true }],
       errors: [{ messageId: 'negatedPreferTypeUndefined' }],
       output: `
       import { Type } from '@ephox/katamari';
@@ -275,6 +322,121 @@ if (Type.isNonNullable(value)) {
       }
       `
     },
+    // Test reverse operand order for typeof checks
+    {
+      code: `
+      if ('string' === typeof value) {
+        console.log('is string');
+      }
+      `,
+      errors: [{ messageId: 'preferTypeString' }],
+      output: `
+      import { Type } from '@ephox/katamari';
+if (Type.isString(value)) {
+        console.log('is string');
+      }
+      `
+    },
+    {
+      code: `
+      if ('number' !== typeof count) {
+        throw new Error('Expected number');
+      }
+      `,
+      errors: [{ messageId: 'negatedPreferTypeNumber' }],
+      output: `
+      import { Type } from '@ephox/katamari';
+if (!Type.isNumber(count)) {
+        throw new Error('Expected number');
+      }
+      `
+    },
+    // Test null/undefined with reversed operands
+    {
+      code: `
+      if (null === value) {
+        return 'null value';
+      }
+      `,
+      errors: [{ messageId: 'preferTypeNull' }],
+      output: `
+      import { Type } from '@ephox/katamari';
+if (Type.isNull(value)) {
+        return 'null value';
+      }
+      `
+    },
+    {
+      code: `
+      if (null !== value) {
+        return value.toString();
+      }
+      `,
+      errors: [{ messageId: 'negatedPreferTypeNull' }],
+      output: `
+      import { Type } from '@ephox/katamari';
+if (!Type.isNull(value)) {
+        return value.toString();
+      }
+      `
+    },
+    {
+      code: `
+      if (undefined === value) {
+        return 'undefined value';
+      }
+      `,
+      errors: [{ messageId: 'preferTypeUndefined' }],
+      output: `
+      import { Type } from '@ephox/katamari';
+if (Type.isUndefined(value)) {
+        return 'undefined value';
+      }
+      `
+    },
+    {
+      code: `
+      if (undefined !== value) {
+        return value.toString();
+      }
+      `,
+      errors: [{ messageId: 'negatedPreferTypeUndefined' }],
+      output: `
+      import { Type } from '@ephox/katamari';
+if (!Type.isUndefined(value)) {
+        return value.toString();
+      }
+      `
+    },
+    {
+      code: `
+      if (null == value) {
+        return 'nullable';
+      }
+      `,
+      errors: [{ messageId: 'preferTypeNullable' }],
+      output: `
+      import { Type } from '@ephox/katamari';
+if (Type.isNullable(value)) {
+        return 'nullable';
+      }
+      `
+    },
+    {
+      code: `
+      if (null != value) {
+        return value.toString();
+      }
+      `,
+      errors: [{ messageId: 'preferTypeNonNullable' }],
+      output: `
+      import { Type } from '@ephox/katamari';
+if (Type.isNonNullable(value)) {
+        return value.toString();
+      }
+      `
+    },
+    // Test with and without import
     {
       code: `
       import { Type } from '@ephox/katamari';
@@ -296,11 +458,17 @@ if (Type.isNonNullable(value)) {
       if (typeof value === 'string') {
         console.log('already has import');
       }
+      if (typeof value === 'number') {
+        console.log('already has import');
+      }
       `,
-      errors: [{ messageId: 'preferTypeString' }],
+      errors: [{ messageId: 'preferTypeString' }, { messageId: 'preferTypeNumber' }],
       output: `
       import { Arr, Type } from '@ephox/katamari';
       if (Type.isString(value)) {
+        console.log('already has import');
+      }
+      if (Type.isNumber(value)) {
         console.log('already has import');
       }
       `
@@ -308,15 +476,15 @@ if (Type.isNonNullable(value)) {
     {
       code: `
       import { Something } from '@other/package';
-      if (typeof value === 'string') {
+      if (typeof value === 'boolean') {
         console.log('has other imports');
       }
       `,
-      errors: [{ messageId: 'preferTypeString' }],
+      errors: [{ messageId: 'preferTypeBoolean' }],
       output: `
       import { Something } from '@other/package';
 import { Type } from '@ephox/katamari';
-      if (Type.isString(value)) {
+      if (Type.isBoolean(value)) {
         console.log('has other imports');
       }
       `
