@@ -49,6 +49,11 @@ export const typesAtTop = createRule({
 
       // Handle exported declarations - only treat as code if not exporting a type
       if (node.type === TSESTree.AST_NODE_TYPES.ExportNamedDeclaration) {
+        // Re-export statements (export { foo } from 'module') should not be treated as code
+        if (node.source) {
+          return false;
+        }
+
         if (!node.declaration) {
           // Export specifiers like `export { foo }`
           return true;

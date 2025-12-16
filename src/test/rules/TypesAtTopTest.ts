@@ -89,6 +89,59 @@ export enum ExportedEnum {
 
 const afterExportedTypes = 'after exported types';`,
     },
+    {
+      code: `
+import { Something } from 'somewhere';
+
+// This is a comment between imports and types
+// Multiple line comments should also be fine
+/* Block comment is also allowed */
+
+interface MyInterface {
+  value: string;
+}
+
+// Comment between types is also fine
+type MyType = string;
+
+/**
+ * JSDoc comments should work too
+ */
+enum MyEnum {
+  A, B, C
+}
+
+// Comment before code
+const myVariable = 'test';`,
+    },
+    {
+      code: `
+import * as Loader from '../loader/Loader';
+import { readPlugins, registerPlugins } from '../loader/Plugins';
+import * as TinyVersions from '../loader/Versions';
+
+export { TEST_LICENSE_KEY } from '../loader/Constants';
+
+export type SuccessCallback = (v: any) => void;
+export type FailureCallback = (err: Error) => void;
+
+const someCode = 'after types';`,
+    },
+    {
+      code: `
+import { Utils } from 'utils';
+
+export { helper } from './helper';
+export * from './constants';
+
+interface Config {
+  name: string;
+}
+
+type Handler = () => void;
+
+const implementation = 'code after types';`,
+    },
   ],
   invalid: [
     {
@@ -214,6 +267,25 @@ export enum Status {
 }
 
 export const value = 'exported code';`,
+    },
+    {
+      code: `
+import { Utils } from 'utils';
+
+export const regularExport = 'this should trigger error';
+
+interface Config {
+  setting: boolean;
+}`,
+      errors: [{ messageId: 'typeNotAtTop' }],
+      output: `
+import { Utils } from 'utils';
+
+interface Config {
+  setting: boolean;
+}
+
+export const regularExport = 'this should trigger error';`,
     },
   ],
 });
