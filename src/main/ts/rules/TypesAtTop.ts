@@ -1,10 +1,236 @@
-import { ESLintUtils, TSESTree } from '@typescript-eslint/utils';
+import { ESLintUtils, TSESTree, TSESLint } from '@typescript-eslint/utils';
 
 const createRule = ESLintUtils.RuleCreator(
   () => 'https://github.com/tinymce/eslint-plugin'
 );
 
-export const typesAtTop = createRule({
+type MessageIds = 'typeNotAtTop';
+type Options = [];
+
+interface FileAnalysis {
+  readonly lastImportLine: number;
+  readonly typeDeclarations: readonly TSESTree.Node[];
+  readonly codeStatements: readonly TSESTree.Node[];
+}
+
+const TYPE_DECLARATION_NODE_TYPES: TSESTree.AST_NODE_TYPES[] = [
+  TSESTree.AST_NODE_TYPES.TSInterfaceDeclaration,
+  TSESTree.AST_NODE_TYPES.TSTypeAliasDeclaration,
+  TSESTree.AST_NODE_TYPES.TSEnumDeclaration
+];
+
+const CODE_STATEMENT_NODE_TYPES: TSESTree.AST_NODE_TYPES[] = [
+  TSESTree.AST_NODE_TYPES.VariableDeclaration,
+  TSESTree.AST_NODE_TYPES.FunctionDeclaration,
+  TSESTree.AST_NODE_TYPES.ClassDeclaration,
+  TSESTree.AST_NODE_TYPES.ExpressionStatement,
+  TSESTree.AST_NODE_TYPES.ExportDefaultDeclaration
+];
+
+/**
+ * Checks if a node is a type declaration (interface, type alias, or enum).
+ * Handles both standalone and exported type declarations.
+ */
+const isTypeDeclaration = (node: TSESTree.Node): boolean => {
+  if (TYPE_DECLARATION_NODE_TYPES.includes(node.type)) {
+    return true;
+  }
+
+  // Handle exported type declarations: export interface Foo {}
+  if (node.type === TSESTree.AST_NODE_TYPES.ExportNamedDeclaration && node.declaration) {
+    return TYPE_DECLARATION_NODE_TYPES.includes(node.declaration.type);
+  }
+
+  return false;
+};
+
+/**
+ * Checks if a node is a code statement that should come after type declarations.
+ * Excludes re-export statements (export { foo } from 'module') as they are import-like.
+ */
+const isCodeStatement = (node: TSESTree.Node): boolean => {
+  if (CODE_STATEMENT_NODE_TYPES.includes(node.type)) {
+    return true;
+  }
+
+  if (node.type === TSESTree.AST_NODE_TYPES.ExportNamedDeclaration) {
+    // Re-export statements should not be treated as code
+    if (node.source) {
+      return false;
+    }
+
+    // Export specifiers like `export { foo }` are code
+    if (!node.declaration) {
+      return true;
+    }
+
+    // If exporting a type declaration, don't treat as code
+    return !TYPE_DECLARATION_NODE_TYPES.includes(node.declaration.type);
+  }
+
+  return false;
+};
+
+/**
+ * Analyzes the program body to categorize statements and find the last import line.
+ */
+const analyzeFile = (body: readonly TSESTree.ProgramStatement[]): FileAnalysis => {
+  let lastImportLine = 0;
+  const typeDeclarations: TSESTree.Node[] = [];
+  const codeStatements: TSESTree.Node[] = [];
+
+  for (const statement of body) {
+    if (statement.type === TSESTree.AST_NODE_TYPES.ImportDeclaration) {
+      lastImportLine = Math.max(lastImportLine, statement.loc?.end.line ?? 0);
+    } else if (isTypeDeclaration(statement)) {
+      typeDeclarations.push(statement);
+    } else if (isCodeStatement(statement)) {
+      codeStatements.push(statement);
+    }
+  }
+
+  return {
+    lastImportLine,
+    typeDeclarations,
+    codeStatements
+  };
+};
+
+/**
+ * Identifies type declarations that appear after code statements.
+ * These are considered misplaced and should be moved to the top.
+ */
+const findMisplacedTypes = (fileAnalysis: FileAnalysis): readonly TSESTree.Node[] => {
+  const { codeStatements, typeDeclarations, lastImportLine } = fileAnalysis;
+  const misplacedTypes: TSESTree.Node[] = [];
+
+  for (const typeDecl of typeDeclarations) {
+    const typeLine = typeDecl.loc?.start.line ?? 0;
+
+    // Check if there's any code statement before this type (after imports)
+    const hasCodeBefore = codeStatements.some((codeStmt) => {
+      const codeLine = codeStmt.loc?.start.line ?? 0;
+      return codeLine > lastImportLine && codeLine < typeLine;
+    });
+
+    if (hasCodeBefore) {
+      misplacedTypes.push(typeDecl);
+    }
+  }
+
+  return misplacedTypes;
+};
+
+/**
+ * Calculates the position after the last import statement (or start of file).
+ * This is where type declarations should be inserted.
+ */
+const getInsertPosition = (
+  body: readonly TSESTree.ProgramStatement[],
+  fullText: string
+): number => {
+  const lastImportNode = body
+    .filter((stmt): stmt is TSESTree.ImportDeclaration =>
+      stmt.type === TSESTree.AST_NODE_TYPES.ImportDeclaration
+    )
+    .pop();
+
+  if (!lastImportNode?.range) {
+    return 0;
+  }
+
+  // Start after the import statement
+  let position = lastImportNode.range[1];
+
+  // Move to the end of the line (including newline)
+  const textAfter = fullText.slice(position);
+  const newlineMatch = textAfter.match(/\r?\n/);
+
+  if (newlineMatch?.index !== undefined) {
+    position += newlineMatch.index + newlineMatch[0].length;
+  }
+
+  return position;
+};
+
+/**
+ * Removes a node from the source text, including its surrounding whitespace.
+ * Returns the modified text and the number of characters removed.
+ */
+const removeNodeFromText = (
+  text: string,
+  node: TSESTree.Node
+): { readonly text: string; readonly removedLength: number } => {
+  if (!node.range) {
+    return { text, removedLength: 0 };
+  }
+
+  const [ nodeStart, nodeEnd ] = node.range;
+  let removeStart = nodeStart;
+  let removeEnd = nodeEnd;
+
+  // Expand to include the entire line (indentation and trailing newline)
+  while (removeStart > 0 && text[removeStart - 1] !== '\n') {
+    removeStart--;
+  }
+
+  if (removeEnd < text.length && text[removeEnd] === '\n') {
+    removeEnd++;
+  }
+
+  const modifiedText = text.slice(0, removeStart) + text.slice(removeEnd);
+  const removedLength = removeEnd - removeStart;
+
+  return { text: modifiedText, removedLength };
+};
+
+/**
+ * Creates a fix that moves all misplaced type declarations to the top of the file.
+ */
+const createAutoFix = (
+  fixer: TSESLint.RuleFixer,
+  misplacedTypes: readonly TSESTree.Node[],
+  body: readonly TSESTree.ProgramStatement[],
+  sourceCode: Readonly<TSESLint.SourceCode>
+): TSESLint.RuleFix => {
+  const fullText = sourceCode.getText();
+  let insertPosition = getInsertPosition(body, fullText);
+
+  // Sort types by their original line numbers to maintain relative order
+  const sortedTypes = [ ...misplacedTypes ].sort((a, b) =>
+    (a.loc?.start.line ?? 0) - (b.loc?.start.line ?? 0)
+  );
+
+  // Extract the text of each type declaration
+  const typeTexts = sortedTypes.map((typeNode) => sourceCode.getText(typeNode));
+  const typeText = typeTexts.join('\n\n');
+
+  // Remove types from their original locations (in reverse order to maintain positions)
+  let modifiedText = fullText;
+  const reversedTypes = [ ...sortedTypes ].reverse();
+
+  for (const typeNode of reversedTypes) {
+    const { text: newText, removedLength } = removeNodeFromText(modifiedText, typeNode);
+    modifiedText = newText;
+
+    // Adjust insert position if we removed text before it
+    if (typeNode.range && typeNode.range[0] < insertPosition) {
+      insertPosition -= removedLength;
+    }
+  }
+
+  // Insert types at the correct position with proper spacing
+  const beforeInsert = modifiedText.slice(0, insertPosition);
+  const afterInsert = modifiedText.slice(insertPosition);
+
+  // Normalize spacing: ensure one blank line before and after types
+  const normalizedAfter = afterInsert.replace(/^\n+/, '\n');
+  const finalText = (beforeInsert + '\n' + typeText + '\n' + normalizedAfter).replace(/\s+$/, '');
+
+  return fixer.replaceTextRange([ 0, fullText.length ], finalText);
+};
+
+export const typesAtTop = createRule<Options, MessageIds>({
   name: 'types-at-top',
   defaultOptions: [],
   meta: {
@@ -19,195 +245,30 @@ export const typesAtTop = createRule({
     fixable: 'code'
   },
   create: (context) => {
-    const sourceCode = context.getSourceCode();
-
-    const isTypeDeclaration = (node: TSESTree.Node): boolean => {
-      if (node.type === TSESTree.AST_NODE_TYPES.TSInterfaceDeclaration ||
-          node.type === TSESTree.AST_NODE_TYPES.TSTypeAliasDeclaration ||
-          node.type === TSESTree.AST_NODE_TYPES.TSEnumDeclaration) {
-        return true;
-      }
-
-      // Handle exported type declarations
-      if (node.type === TSESTree.AST_NODE_TYPES.ExportNamedDeclaration && node.declaration) {
-        return node.declaration.type === TSESTree.AST_NODE_TYPES.TSInterfaceDeclaration ||
-               node.declaration.type === TSESTree.AST_NODE_TYPES.TSTypeAliasDeclaration ||
-               node.declaration.type === TSESTree.AST_NODE_TYPES.TSEnumDeclaration;
-      }
-
-      return false;
-    };
-
-    const isCodeStatement = (node: TSESTree.Node): boolean => {
-      if (node.type === TSESTree.AST_NODE_TYPES.VariableDeclaration ||
-          node.type === TSESTree.AST_NODE_TYPES.FunctionDeclaration ||
-          node.type === TSESTree.AST_NODE_TYPES.ClassDeclaration ||
-          node.type === TSESTree.AST_NODE_TYPES.ExpressionStatement ||
-          node.type === TSESTree.AST_NODE_TYPES.ExportDefaultDeclaration) {
-        return true;
-      }
-
-      // Handle exported declarations - only treat as code if not exporting a type
-      if (node.type === TSESTree.AST_NODE_TYPES.ExportNamedDeclaration) {
-        // Re-export statements (export { foo } from 'module') should not be treated as code
-        if (node.source) {
-          return false;
-        }
-
-        if (!node.declaration) {
-          // Export specifiers like `export { foo }`
-          return true;
-        }
-
-        // If exporting a type declaration, don't treat as code
-        return !(node.declaration.type === TSESTree.AST_NODE_TYPES.TSInterfaceDeclaration ||
-                node.declaration.type === TSESTree.AST_NODE_TYPES.TSTypeAliasDeclaration ||
-                node.declaration.type === TSESTree.AST_NODE_TYPES.TSEnumDeclaration);
-      }
-
-      return false;
-    };
+    const sourceCode = context.sourceCode;
 
     return {
       Program: (node) => {
-        const body = node.body;
-        let lastImportLine = 0;
-        const typeDeclarations: TSESTree.Node[] = [];
-        const codeStatements: TSESTree.Node[] = [];
+        const fileAnalysis = analyzeFile(node.body);
+        const misplacedTypes = findMisplacedTypes(fileAnalysis);
 
-        // Find the last import statement and collect declarations
-        for (const statement of body) {
-          if (statement.type === TSESTree.AST_NODE_TYPES.ImportDeclaration) {
-            lastImportLine = Math.max(lastImportLine, statement.loc?.end.line || 0);
-          } else if (isTypeDeclaration(statement)) {
-            typeDeclarations.push(statement);
-          } else if (isCodeStatement(statement)) {
-            codeStatements.push(statement);
-          }
+        if (misplacedTypes.length === 0) {
+          return;
         }
 
-        // Check if types are misplaced and report with fixes
-        const misplacedTypes: TSESTree.Node[] = [];
+        // Report the first misplaced type with an auto-fix
+        context.report({
+          node: misplacedTypes[0],
+          messageId: 'typeNotAtTop',
+          fix: (fixer) => createAutoFix(fixer, misplacedTypes, node.body, sourceCode)
+        });
 
-        for (const typeDecl of typeDeclarations) {
-          const typeLine = typeDecl.loc?.start.line || 0;
-
-          // Check if there's any code statement before this type (after imports)
-          const hasCodeBefore = codeStatements.some((codeStmt) => {
-            const codeLine = codeStmt.loc?.start.line || 0;
-            return codeLine > lastImportLine && codeLine < typeLine;
-          });
-
-          if (hasCodeBefore) {
-            misplacedTypes.push(typeDecl);
-          }
-        }
-
-        // If we have misplaced types, we need to fix them all together
-        if (misplacedTypes.length > 0) {
-          // Report all misplaced types with a single fix for the first one
+        // Report remaining misplaced types without fixes (to show all errors)
+        for (const misplacedType of misplacedTypes.slice(1)) {
           context.report({
-            node: misplacedTypes[0],
-            messageId: 'typeNotAtTop',
-            fix: (fixer) => {
-              // Get the full source text
-              const fullText = sourceCode.getText();
-
-              // Find the position to insert types (after last import or at the beginning)
-              let insertPosition: number;
-              const lastImportNode = body
-                .filter((stmt) => stmt.type === TSESTree.AST_NODE_TYPES.ImportDeclaration)
-                .pop();
-
-              if (lastImportNode && lastImportNode.range) {
-                insertPosition = lastImportNode.range[1];
-                // Find the end of the line (including newline)
-                const textAfter = fullText.slice(insertPosition);
-                const newlineMatch = textAfter.match(/\r?\n/);
-                if (newlineMatch && newlineMatch.index !== undefined) {
-                  insertPosition += newlineMatch.index + newlineMatch[0].length;
-                }
-              } else {
-                insertPosition = 0;
-              }
-
-              // Sort types by their original line numbers to maintain order
-              const sortedTypes = [ ...misplacedTypes ].sort((a, b) =>
-                (a.loc?.start.line || 0) - (b.loc?.start.line || 0)
-              );
-
-              // Extract type text preserving indentation
-              const extractedTypes = sortedTypes.map((typeNode) =>
-                sourceCode.getText(typeNode)
-              );
-
-              // Create the insertion text - types with empty line between each
-              const typeText = extractedTypes.join('\n\n');
-
-              // Remove the types from their original locations
-              let modifiedText = fullText;
-
-              // Process in reverse order to avoid position shifts
-              const reversedTypes = [ ...sortedTypes ].reverse();
-              for (const typeNode of reversedTypes) {
-                if (!typeNode.range) {
-                  continue;
-                }
-
-                const nodeStart = typeNode.range[0];
-                const nodeEnd = typeNode.range[1];
-
-                // Find the line boundaries for clean removal
-                let removeStart = nodeStart;
-                let removeEnd = nodeEnd;
-
-                // Look backwards to find start of line (including indentation)
-                while (removeStart > 0 && modifiedText[removeStart - 1] !== '\n') {
-                  removeStart--;
-                }
-
-                // Look forwards to include the trailing newline
-                if (removeEnd < modifiedText.length && modifiedText[removeEnd] === '\n') {
-                  removeEnd++;
-                }
-
-                // Remove this section
-                modifiedText = modifiedText.slice(0, removeStart) + modifiedText.slice(removeEnd);
-
-                // Update insert position if it was after the removed content
-                if (insertPosition > removeStart) {
-                  insertPosition -= (removeEnd - removeStart);
-                }
-              }
-
-              // Insert the types at the correct position
-              const beforeInsert = modifiedText.slice(0, insertPosition);
-              const afterInsert = modifiedText.slice(insertPosition);
-
-              // Ensure proper spacing: single empty line before types, single empty line after
-              let cleanAfter = afterInsert;
-
-              // Remove any extra leading newlines from after text and ensure exactly one
-              cleanAfter = cleanAfter.replace(/^\n+/, '\n');
-
-              // Construct final text
-              let finalText = beforeInsert + '\n' + typeText + '\n' + cleanAfter;
-
-              // Clean up any trailing whitespace at the very end of the file
-              finalText = finalText.replace(/\s+$/, '');
-
-              // Return the fix
-              return fixer.replaceTextRange([ 0, fullText.length ], finalText);
-            }
+            node: misplacedType,
+            messageId: 'typeNotAtTop'
           });
-
-          // Report additional types without fixes to show all errors
-          for (let i = 1; i < misplacedTypes.length; i++) {
-            context.report({
-              node: misplacedTypes[i],
-              messageId: 'typeNotAtTop'
-            });
-          }
         }
       }
     };
