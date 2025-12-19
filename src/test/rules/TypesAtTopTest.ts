@@ -142,6 +142,45 @@ type Handler = () => void;
 
 const implementation = 'code after types';`,
     },
+    {
+      code: `
+import { Something } from 'somewhere';
+
+declare let globalVar: string;
+declare const GLOBAL_CONSTANT: number;
+
+interface MyInterface {
+  value: string;
+}
+
+type MyType = string;
+
+const myVariable = 'test';`,
+    },
+    {
+      code: `
+import { Utils } from 'utils';
+
+declare let customElement: HTMLElement;
+
+interface Config {
+  name: string;
+}
+
+const code = 'after types and declares';`,
+    },
+    {
+      code: `
+import { Test } from 'test';
+
+export declare const EXPORTED_GLOBAL: string;
+
+export interface ExportedInterface {
+  name: string;
+}
+
+const implementation = 'code';`,
+    },
   ],
   invalid: [
     {
@@ -274,18 +313,140 @@ import { Utils } from 'utils';
 
 export const regularExport = 'this should trigger error';
 
-interface Config {
+interface Config<T extends Object> {
   setting: boolean;
 }`,
       errors: [{ messageId: 'typeNotAtTop' }],
       output: `
 import { Utils } from 'utils';
 
-interface Config {
+interface Config<T extends Object> {
   setting: boolean;
 }
 
 export const regularExport = 'this should trigger error';`,
+    },
+    {
+      code: `
+/**
+ * @summary
+ * This class parses HTML code into a DOM like structure of nodes it will remove redundant whitespace and make
+ * sure that the node tree is valid according to the specified schema.
+ *
+ * @example
+ * const parser = tinymce.html.DomParser({ validate: true }, schema);
+ * const rootNode = parser.parse('<h1>content</h1>');
+ *
+ * @class tinymce.html.DomParser
+ * @version 3.4
+ */
+
+const extraBlockLikeElements = [ 'script', 'style', 'template', 'param', 'meta', 'title', 'link' ];
+
+interface Test {
+  readonly foo: string;
+}
+      `,
+      errors: [{ messageId: 'typeNotAtTop' }],
+      output: `
+interface Test {
+  readonly foo: string;
+}
+
+/**
+ * @summary
+ * This class parses HTML code into a DOM like structure of nodes it will remove redundant whitespace and make
+ * sure that the node tree is valid according to the specified schema.
+ *
+ * @example
+ * const parser = tinymce.html.DomParser({ validate: true }, schema);
+ * const rootNode = parser.parse('<h1>content</h1>');
+ *
+ * @class tinymce.html.DomParser
+ * @version 3.4
+ */
+
+const extraBlockLikeElements = [ 'script', 'style', 'template', 'param', 'meta', 'title', 'link' ];`
+    },
+    {
+      code: `
+import { Something } from 'somewhere';
+
+const myVariable = 'test';
+
+declare let globalVar: string;
+
+interface MyInterface {
+  value: string;
+}`,
+      errors: [{ messageId: 'typeNotAtTop' }, { messageId: 'typeNotAtTop' }],
+      output: `
+import { Something } from 'somewhere';
+
+declare let globalVar: string;
+
+interface MyInterface {
+  value: string;
+}
+
+const myVariable = 'test';`,
+    },
+    {
+      code: `
+import { Utils } from 'utils';
+
+const code = 'some code';
+
+declare const GLOBAL: number;
+
+type MyType = string;`,
+      errors: [{ messageId: 'typeNotAtTop' }, { messageId: 'typeNotAtTop' }],
+      output: `
+import { Utils } from 'utils';
+
+declare const GLOBAL: number;
+
+type MyType = string;
+
+const code = 'some code';`,
+    },
+    {
+      code: `
+import { Test } from 'test';
+
+export const value = 'exported';
+
+export declare let exportedGlobal: string;
+
+export interface Config {
+  setting: boolean;
+}`,
+      errors: [{ messageId: 'typeNotAtTop' }, { messageId: 'typeNotAtTop' }],
+      output: `
+import { Test } from 'test';
+
+export declare let exportedGlobal: string;
+
+export interface Config {
+  setting: boolean;
+}
+
+export const value = 'exported';`,
+    },
+    {
+      code: `
+import { Utils } from 'utils';
+
+const implementation = 'code';
+
+export declare const GLOBAL_CONFIG: Record<string, unknown>;`,
+      errors: [{ messageId: 'typeNotAtTop' }],
+      output: `
+import { Utils } from 'utils';
+
+export declare const GLOBAL_CONFIG: Record<string, unknown>;
+
+const implementation = 'code';`,
     },
   ],
 });

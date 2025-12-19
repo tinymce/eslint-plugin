@@ -27,18 +27,27 @@ const CODE_STATEMENT_NODE_TYPES: TSESTree.AST_NODE_TYPES[] = [
   TSESTree.AST_NODE_TYPES.ExportDefaultDeclaration
 ];
 
+const isDeclareStatement = (node: TSESTree.Node): boolean =>
+  node.type === TSESTree.AST_NODE_TYPES.VariableDeclaration && node.declare === true;
+
+const isBaseTypeDeclaration = (node: TSESTree.Node): boolean =>
+  TYPE_DECLARATION_NODE_TYPES.includes(node.type);
+
+const isTypeOrDeclare = (node: TSESTree.Node): boolean =>
+  isBaseTypeDeclaration(node) || isDeclareStatement(node);
+
 /**
- * Checks if a node is a type declaration (interface, type alias, or enum).
+ * Checks if a node is a type declaration (interface, type alias, enum, or declare statement).
  * Handles both standalone and exported type declarations.
  */
 const isTypeDeclaration = (node: TSESTree.Node): boolean => {
-  if (TYPE_DECLARATION_NODE_TYPES.includes(node.type)) {
+  if (isTypeOrDeclare(node)) {
     return true;
   }
 
-  // Handle exported type declarations: export interface Foo {}
+  // Handle exported type declarations: export interface Foo {}, export declare let foo
   if (node.type === TSESTree.AST_NODE_TYPES.ExportNamedDeclaration && node.declaration) {
-    return TYPE_DECLARATION_NODE_TYPES.includes(node.declaration.type);
+    return isTypeOrDeclare(node.declaration);
   }
 
   return false;
@@ -64,8 +73,8 @@ const isCodeStatement = (node: TSESTree.Node): boolean => {
       return true;
     }
 
-    // If exporting a type declaration, don't treat as code
-    return !TYPE_DECLARATION_NODE_TYPES.includes(node.declaration.type);
+    // If exporting a type declaration or declare statement, don't treat as code
+    return !isTypeOrDeclare(node.declaration);
   }
 
   return false;
@@ -75,9 +84,9 @@ const isCodeStatement = (node: TSESTree.Node): boolean => {
  * Analyzes the program body to categorize statements and find the last import line.
  */
 const analyzeFile = (body: readonly TSESTree.ProgramStatement[]): FileAnalysis => {
-  let lastImportLine = 0;
   const typeDeclarations: TSESTree.Node[] = [];
   const codeStatements: TSESTree.Node[] = [];
+  let lastImportLine = 0;
 
   for (const statement of body) {
     if (statement.type === TSESTree.AST_NODE_TYPES.ImportDeclaration) {
@@ -89,12 +98,13 @@ const analyzeFile = (body: readonly TSESTree.ProgramStatement[]): FileAnalysis =
     }
   }
 
-  return {
-    lastImportLine,
-    typeDeclarations,
-    codeStatements
-  };
+  return { lastImportLine, typeDeclarations, codeStatements };
 };
+
+/**
+ * Gets the line number of a node, defaulting to 0 if unavailable.
+ */
+const getNodeLine = (node: TSESTree.Node): number => node.loc?.start.line ?? 0;
 
 /**
  * Identifies type declarations that appear after code statements.
@@ -102,23 +112,14 @@ const analyzeFile = (body: readonly TSESTree.ProgramStatement[]): FileAnalysis =
  */
 const findMisplacedTypes = (fileAnalysis: FileAnalysis): readonly TSESTree.Node[] => {
   const { codeStatements, typeDeclarations, lastImportLine } = fileAnalysis;
-  const misplacedTypes: TSESTree.Node[] = [];
 
-  for (const typeDecl of typeDeclarations) {
-    const typeLine = typeDecl.loc?.start.line ?? 0;
-
-    // Check if there's any code statement before this type (after imports)
-    const hasCodeBefore = codeStatements.some((codeStmt) => {
-      const codeLine = codeStmt.loc?.start.line ?? 0;
+  return typeDeclarations.filter((typeDecl) => {
+    const typeLine = getNodeLine(typeDecl);
+    return codeStatements.some((codeStmt) => {
+      const codeLine = getNodeLine(codeStmt);
       return codeLine > lastImportLine && codeLine < typeLine;
     });
-
-    if (hasCodeBefore) {
-      misplacedTypes.push(typeDecl);
-    }
-  }
-
-  return misplacedTypes;
+  });
 };
 
 /**
@@ -185,6 +186,12 @@ const removeNodeFromText = (
 };
 
 /**
+ * Sorts nodes by their line numbers to maintain relative order.
+ */
+const sortByLineNumber = (nodes: readonly TSESTree.Node[]): TSESTree.Node[] =>
+  [ ...nodes ].sort((a, b) => getNodeLine(a) - getNodeLine(b));
+
+/**
  * Creates a fix that moves all misplaced type declarations to the top of the file.
  */
 const createAutoFix = (
@@ -197,19 +204,13 @@ const createAutoFix = (
   let insertPosition = getInsertPosition(body, fullText);
 
   // Sort types by their original line numbers to maintain relative order
-  const sortedTypes = [ ...misplacedTypes ].sort((a, b) =>
-    (a.loc?.start.line ?? 0) - (b.loc?.start.line ?? 0)
-  );
-
-  // Extract the text of each type declaration
-  const typeTexts = sortedTypes.map((typeNode) => sourceCode.getText(typeNode));
-  const typeText = typeTexts.join('\n\n');
+  const sortedTypes = sortByLineNumber(misplacedTypes);
+  const typeText = sortedTypes.map((node) => sourceCode.getText(node)).join('\n\n');
 
   // Remove types from their original locations (in reverse order to maintain positions)
   let modifiedText = fullText;
-  const reversedTypes = [ ...sortedTypes ].reverse();
 
-  for (const typeNode of reversedTypes) {
+  for (const typeNode of [ ...sortedTypes ].reverse()) {
     const { text: newText, removedLength } = removeNodeFromText(modifiedText, typeNode);
     modifiedText = newText;
 
@@ -222,8 +223,6 @@ const createAutoFix = (
   // Insert types at the correct position with proper spacing
   const beforeInsert = modifiedText.slice(0, insertPosition);
   const afterInsert = modifiedText.slice(insertPosition);
-
-  // Normalize spacing: ensure one blank line before and after types
   const normalizedAfter = afterInsert.replace(/^\n+/, '\n');
   const finalText = (beforeInsert + '\n' + typeText + '\n' + normalizedAfter).replace(/\s+$/, '');
 
