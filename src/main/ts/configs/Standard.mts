@@ -32,7 +32,7 @@ export const base = tseslint.config(
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-member-accessibility': [ 'error', { accessibility: 'explicit' }],
       '@typescript-eslint/explicit-module-boundary-types': 'off',
-      '@stylistic/func-call-spacing': 'error',
+      '@stylistic/function-call-spacing': 'error',
       // The indent rule is broken on ts code bases. C.f: https://github.com/typescript-eslint/typescript-eslint/issues/1824
       '@stylistic/indent': [ 'error', 2, {
         FunctionDeclaration: { parameters: 'first' },
@@ -71,7 +71,7 @@ export const base = tseslint.config(
       '@stylistic/object-curly-spacing': [ 'error', 'always', { objectsInObjects: false }],
       '@typescript-eslint/prefer-for-of': 'error',
       '@typescript-eslint/prefer-function-type': 'error',
-      '@stylistic/quotes': [ 'error', 'single', { allowTemplateLiterals: true }],
+      '@stylistic/quotes': [ 'error', 'single', { allowTemplateLiterals: 'always' }],
       '@typescript-eslint/require-await': 'off',
       '@typescript-eslint/restrict-plus-operands': 'off',
       '@typescript-eslint/restrict-template-expressions': 'off',
