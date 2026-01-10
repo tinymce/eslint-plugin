@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Added
+- Added new `@tinymce/prefer-katamari-type` rule to detect places where the `Type` module from `@ephox/katamari` should be used instead of manual runtime type checks.
+
 ## 3.0.0 - 2025-04-28
 
 ### Added

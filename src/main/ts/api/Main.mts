@@ -9,6 +9,7 @@ import { noMainModuleImports } from '../rules/NoMainModuleImports.js';
 import { noPathAliasImports } from '../rules/NoPathAliasImports.js';
 import { noPublicApiModuleImports } from '../rules/NoPublicApiModuleImports.js';
 import { preferFun } from '../rules/PreferFun.js';
+import { preferType } from '../rules/PreferKatamariType.js';
 import { preferMcAgarTinyAssertions } from '../rules/PreferMcAgarTinyAssertions.js';
 import { preferMcAgarTinyDom } from '../rules/PreferMcAgarTinyDom.js';
 
@@ -24,6 +25,7 @@ const rules = {
   'no-publicapi-module-imports': noPublicApiModuleImports,
   'no-implicit-dom-globals': noImplicitDomGlobals,
   'prefer-fun': preferFun,
+  'prefer-katamari-type': preferType,
   'prefer-mcagar-tiny-assertions': preferMcAgarTinyAssertions,
   'prefer-mcagar-tiny-dom': preferMcAgarTinyDom
 };
@@ -63,6 +65,7 @@ const standard = tseslint.config(
       '@tinymce/no-unimported-promise': 'off',
       '@tinymce/no-implicit-dom-globals': 'error',
       '@tinymce/prefer-fun': 'error',
+      '@tinymce/prefer-katamari-type': 'error',
       '@tinymce/prefer-mcagar-tiny-assertions': 'off',
       '@tinymce/prefer-mcagar-tiny-dom': 'off',
     }
