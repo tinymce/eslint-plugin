@@ -25,7 +25,7 @@ export const noMainModuleImports = createRule({
     schema: [],
   },
   create: (context) => {
-    const filename = normalizeFilePath(context.getFilename());
+    const filename = normalizeFilePath(context.filename);
     const validator = isPathInMain(filename) ? mainPathValidator : genericPathValidator;
     return {
       ImportDeclaration: (node) => {
