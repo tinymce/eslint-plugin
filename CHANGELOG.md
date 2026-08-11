@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Changed
+- Upgraded to `eslint` v10
+- Upgraded to `typescript` v6
+- Upgraded `@typescript-eslint`, `@stylistic/eslint-plugin`, `eslint-plugin-import-x`, `eslint-plugin-mocha`, `eslint-plugin-prefer-arrow-functions` and other dependencies to their latest versions
+- Replaced deprecated `context.getFilename()` with `context.filename` in the `no-main-module-imports` rule to support `eslint` v10
+- Added explicit `types: ["node"]` to `tsconfig.json`, as `typescript` v6 no longer implicitly includes `@types/node`
+
 ## 3.0.0 - 2025-04-28
 
 ### Added

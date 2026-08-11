@@ -7,33 +7,33 @@
   "repository": "git@github.com:tinymce/eslint-plugin.git",
   "license": "Apache-2.0",
   "dependencies": {
-    "@stylistic/eslint-plugin": "^5.6.1",
-    "@typescript-eslint/eslint-plugin": "^8.50.0",
-    "@typescript-eslint/parser": "^8.50.0",
-    "@typescript-eslint/rule-tester": "^8.50.0",
-    "@typescript-eslint/utils": "^8.50.0",
-    "eslint": "^9.39.2",
-    "eslint-plugin-import-x": "^4.16.1",
-    "eslint-plugin-mocha": "^11.2.0",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@typescript-eslint/eslint-plugin": "^8.64.0",
+    "@typescript-eslint/parser": "^8.64.0",
+    "@typescript-eslint/rule-tester": "^8.64.0",
+    "@typescript-eslint/utils": "^8.64.0",
+    "eslint": "^10.7.0",
+    "eslint-plugin-import-x": "^4.17.1",
+    "eslint-plugin-mocha": "^11.3.0",
     "eslint-plugin-prefer-arrow": "^1.2.3",
-    "eslint-plugin-prefer-arrow-functions": "^3.9.1",
-    "resolve": "^1.22.11",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.50.0"
+    "eslint-plugin-prefer-arrow-functions": "^3.10.1",
+    "resolve": "^1.22.12",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.64.0"
   },
   "peerDependencies": {
-    "eslint": "^9.22.0"
+    "eslint": "^9.22.0 || ^10.0.0"
   },
   "devDependencies": {
     "@tinymce/beehive-flow": "^0.19.0",
     "@types/eslint": "^9.6.1",
-    "@types/eslint-plugin-mocha": "^10.4.0",
-    "@types/estree": "^1.0.8",
-    "@types/node": "^25.0.3",
+    "@types/eslint-plugin-mocha": "^11.1.87",
+    "@types/estree": "^1.0.9",
+    "@types/node": "^26.1.1",
     "@types/resolve": "^1.20.6",
-    "@typescript-eslint/typescript-estree": "^8.50.0",
-    "jest": "^30.2.0",
-    "ts-jest": "^29.4.6"
+    "@typescript-eslint/typescript-estree": "^8.64.0",
+    "jest": "^30.4.2",
+    "ts-jest": "^29.4.11"
   },
   "files": [
     "dist/main",
