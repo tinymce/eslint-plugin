@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 3.0.1 - 2026-08-14
+
 ### Changed
 - Upgraded to `eslint` v10
 - Upgraded to `typescript` v6
